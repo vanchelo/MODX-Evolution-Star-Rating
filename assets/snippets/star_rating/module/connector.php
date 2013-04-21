@@ -6,7 +6,7 @@ $mtime = $mtime[1] + $mtime[0];
 $tstart = $mtime;
 
 // harden it
-require_once(dirname(dirname(dirname(dirname(__FILE__)))).'/manager/includes/protect.inc.php');
+require_once dirname(dirname(dirname(dirname(dirname(__FILE__))))).'/manager/includes/protect.inc.php';
 
 // set some settings, and address some IE issues
 @ini_set('url_rewriter.tags', '');
@@ -37,7 +37,7 @@ $base_path = '';
 
 // get the required includes
 if ($database_user == "") {
-    $rt = @include_once(dirname(dirname(dirname(dirname(__FILE__)))).'/manager/includes/config.inc.php');
+    $rt = @include_once dirname(dirname(dirname(dirname(dirname(__FILE__))))).'/manager/includes/config.inc.php';
     if (!$rt || !$database_type || !$database_server || !$database_user || !$dbase) {
         exit;
     }
@@ -47,7 +47,7 @@ if ($database_user == "") {
 startCMSSession();
 
 // initiate a new document parser
-include_once(MODX_MANAGER_PATH.'/includes/document.parser.class.inc.php');
+include_once MODX_MANAGER_PATH.'/includes/document.parser.class.inc.php';
 $modx = new DocumentParser;
 
 // set some parser options
@@ -105,10 +105,16 @@ $q = ORM::for_table($table);
 $q->table_alias('sc');
 $q->where_equal('sc.published', 1);
 $q->where_equal('sc.deleted', 0);
-$q->where_in('sc.template', array(29, 33));
+/*
+ * Если нужно показывать только ресурсы с опред. шаблонами
+ */
+// $q->where_in('sc.template', array(29, 33));
 
 if (!empty($_REQUEST['query']) && is_string($_REQUEST['query'])) {
-    $q->where_like('sc.longtitle', '%'.$_REQUEST['query'].'%');
+    $q->where_raw('(sc.pagetitle LIKE "%"?"%" OR sc.longtitle LIKE "%"?"%")', array(
+        $_REQUEST['query'],
+        $_REQUEST['query'],
+    ));
 }
 
 if (!empty($_REQUEST['id']) && is_numeric($_REQUEST['id'])) {
@@ -130,6 +136,7 @@ $q->select_many(array('r.total', 'r.votes'));
 
 $q->select_many(array(
         'sc.id',
+        'sc.pagetitle',
         'sc.longtitle',
     )
 );

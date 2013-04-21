@@ -1,6 +1,7 @@
 function ResourcesList($scope, $http) {
-    $scope.url = '/assets/modules/rating/connector.php';
-    $scope.connector = '/assets/modules/rating/processors/connector.php';
+    var module_path = '/assets/snippets/star_rating/module/';
+    $scope.url = module_path + 'connector.php';
+    $scope.connector = module_path + 'processors/connector.php';
     $http.get($scope.url).success(function(data) {
         $scope.resources = data.data;
         $scope.totalResources = data.total;

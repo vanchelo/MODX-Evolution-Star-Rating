@@ -35,7 +35,7 @@ $path = MODX_BASE_URL.'assets/snippets/star_rating/module/';
 <div class="container">
     <form class="form-inline" method="GET" action="">
         <label>
-            <input class="span3" type="text" ng-model="query" ng-change="change()" placeholder="Поиск по названию..."/>
+            <input class="span5" type="text" ng-model="query" ng-change="change()" placeholder="Поиск по названию..."/>
         </label>
         <label>
             Кол-во
@@ -62,7 +62,7 @@ $path = MODX_BASE_URL.'assets/snippets/star_rating/module/';
         </thead>
         <tr ng-repeat="resource in resources" ng-dblclick="get(resource.id)">
             <td>{{resource.id}}</td>
-            <td>{{resource.longtitle}}</td>
+            <td>{{resource.pagetitle}}</td>
             <td>{{resource.total / resource.votes || '-'}}</td>
             <td>{{resource.total || '-'}}</td>
             <td>{{resource.votes || '-'}}</td>
@@ -74,7 +74,7 @@ $path = MODX_BASE_URL.'assets/snippets/star_rating/module/';
          aria-hidden="true">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="myModalLabel">{{resource.longtitle}}</h3>
+            <h3 id="myModalLabel">{{resource.pagetitle}}</h3>
         </div>
         <div class="modal-body">
             <table class="table table-striped table-hover table-condensed">
