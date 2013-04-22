@@ -4,8 +4,10 @@ class starRating
 {
     private $modx;
     private $width = 16;
-    private $interval = 86400;
+    private $interval = 10;
     private $viewOnly = false;
+    private $chunks = array();
+    private $template = 'template';
 
     function __construct(DocumentParser & $modx, $rid = 0)
     {
@@ -13,7 +15,7 @@ class starRating
         $this->rid = (int) $rid;
         $this->rating_table = $this->modx->getFullTableName('star_rating');
         $this->votes_table = $this->modx->getFullTableName('star_rating_votes');
-        $this->starTpl = '[+stars+]<div style="display:inline-block"><span class="totalvotes">Голосов: <span>[+total+]</span></span><span class="totalvotes">Рейтинг: <span>[+rating+]</span></span></div>';
+        $this->chunkPath = dirname(__FILE__).'/chunks/';
     }
 
     public function process()
@@ -47,7 +49,7 @@ class starRating
     private function response($msg = '', $html = '', $success = false)
     {
         return array(
-            'success' => $success,
+            'success' => (boolean) $success,
             'html'    => $html,
             'msg'     => $msg
         );
@@ -90,7 +92,7 @@ class starRating
 
         $votes = 1;
 
-        $query = $this->modx->db->select('*', $this->rating_table, 'rid='.$rid);
+        $query = $this->modx->db->select('*', $this->rating_table, "rid = {$rid}");
         $data = $this->modx->db->getRow($query);
 
         if ($data) {
@@ -123,20 +125,13 @@ class starRating
         $width = intval(round($total / $votes, 2) * $this->width);
 
         $tmp = array(
-            'stars' => '
-                <ul class="star-rating" data-pid="'.$rid.'">
-                    <li class="current-rating" style="width:'.$width.'px"></li>
-                    <li><a data-vote="1" href="#" class="one-star">1</a></li>
-                    <li><a data-vote="2" href="#" class="two-stars">2</a></li>
-                    <li><a data-vote="3" href="#" class="three-stars">3</a></li>
-                    <li><a data-vote="4" href="#" class="four-stars">4</a></li>
-                    <li><a data-vote="5" href="#" class="five-stars">5</a></li>
-                </ul>',
+            'rid' => $rid,
+            'width' => $width,
             'total' => $votes,
             'rating' => !empty($total) ? round($total / $votes, 2) : $vote
         );
 
-        $tpl = $this->starTpl;
+        $tpl = $this->getChunk($this->template);
 
         $output = $this->parseTpl($tpl, $tmp);
 
@@ -145,7 +140,7 @@ class starRating
 
     private function getRating($rid = 0)
     {
-        $query = $this->modx->db->select('*', $this->rating_table, 'rid='.$rid);
+        $query = $this->modx->db->select('*', $this->rating_table, "rid = {$rid}");
         $data = $this->modx->db->getRow($query);
 
         $width = 0;
@@ -159,19 +154,13 @@ class starRating
         }
 
         $tmp = array(
-            'stars' => '<ul class="star-rating" data-pid="'.$rid.'">
-                    <li class="current-rating" style="width:'.$width.'px;"></li>
-                    <li><a data-vote="1" href="#" class="one-star">1</a></li>
-                    <li><a data-vote="2" href="#" class="two-stars">2</a></li>
-                    <li><a data-vote="3" href="#" class="three-stars">3</a></li>
-                    <li><a data-vote="4" href="#" class="four-stars">4</a></li>
-                    <li><a data-vote="5" href="#" class="five-stars">5</a></li>
-                </ul>',
+            'rid' => $rid,
+            'width' => $width,
             'total' => $total,
             'rating' => $rating
         );
 
-        $tpl = $this->starTpl;
+        $tpl = $this->getChunk($this->template);
 
         $output = $this->parseTpl($tpl, $tmp);
 
@@ -195,6 +184,7 @@ class starRating
         foreach ($params as $n => $v) {
             $tpl = str_replace('[+'.$n.'+]', $v, $tpl);
         }
+        $tpl = preg_replace('~\[\[(.*?)\]\]~', '', $tpl);
         return $tpl;
     }
 
@@ -220,6 +210,42 @@ class starRating
     public function setInterval($interval)
     {
         $this->interval = (int) $interval;
+    }
+
+    public function setTemplate($tpl = '') {
+        if (!empty($tpl)) {
+            $this->template = (string) $tpl;
+        }
+    }
+
+    /**
+     * Get template chunk
+     *
+     * @access private
+     * @param string $tpl Template file
+     * @param string $postfix Chunk postfix if use file-based chunks
+     * @return string Empty
+     */
+    private function getChunk($tpl = '', $postfix = '.chunk.tpl') {
+        if (empty($tpl)) {
+            return '';
+        }
+        if (isset($this->chunks[$tpl])) {
+            return $this->chunks[$tpl];
+        }
+
+        // Use file-based chunk
+        $f = $this->chunkPath.strtolower($tpl).$postfix;
+        if (file_exists($f)) {
+            $this->chunks[$tpl] = file_get_contents($f);
+            return $this->chunks[$tpl];
+        }
+
+        return '';
+    }
+
+    private function translate() {
+        return;
     }
 
 }
