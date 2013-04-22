@@ -22,6 +22,10 @@ class starRating
      * @var string Name of template file chunk
      */
     private $template = 'template';
+    /**
+     * @var array An array of templates chunks
+     */
+    private $chunks = array();
 
     function __construct(DocumentParser & $modx, $rid = 0)
     {
@@ -35,7 +39,7 @@ class starRating
     public function process()
     {
         if ($this->viewOnly === true) {
-            return $this->response('Только просмотр', 'Только просмотр', true);
+            return $this->response('Возможность голосованя закрыта!');
         }
 
         if (!empty($_GET['vote']) && !empty($_GET['id'])) {
@@ -43,7 +47,7 @@ class starRating
             $rid = (int) $_GET['id'];
 
             if (!is_numeric($vote) || !is_numeric($rid)) {
-                return $this->response('Не верные данные');
+                return $this->response('Ошибка');
             }
 
             $checkVote = $this->checkVote($rid);
@@ -149,7 +153,7 @@ class starRating
 
         $output = $this->parseTpl($tpl, $tmp);
 
-        return $this->response('Спасибо за ваш голос!', $output, true);
+        return $this->response('Спасибо за ваш голос! Оценка: '.$vote, $output, true);
     }
 
     private function getRating($rid = 0)
