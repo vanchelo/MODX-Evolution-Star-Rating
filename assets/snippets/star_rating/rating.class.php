@@ -2,11 +2,25 @@
 
 class starRating
 {
+    /**
+     * @var DocumentParser A reference to the DocumentParser object
+     */
     private $modx;
+    /**
+     * @var integer Star width in pixels
+     */
     private $width = 16;
-    private $interval = 10;
+    /**
+     * @var integer The period between votings in seconds
+     */
+    private $interval = 86400;
+    /**
+     * @var boolean If set to True users can't add votes
+     */
     private $viewOnly = false;
-    private $chunks = array();
+    /**
+     * @var string Name of template file chunk
+     */
     private $template = 'template';
 
     function __construct(DocumentParser & $modx, $rid = 0)
