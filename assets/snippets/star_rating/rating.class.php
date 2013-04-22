@@ -60,7 +60,8 @@ class starRating
             return 'Не указан ID';
         }
 
-        if ($this->getClientIp() === false) {
+        $ip = $this->getClientIp();
+        if ($ip === false) {
             return 'Возможность голосования для вас закрыта!';
         }
 
@@ -71,7 +72,7 @@ class starRating
         }
 
         $time = time() - $this->interval;
-        $query = $this->modx->db->select('*', $this->votes_table, 'rid='.$id.' AND time > '.$time);
+        $query = $this->modx->db->select('*', $this->votes_table, "ip = '{$ip}' AND  rid = {$id} AND time > {$time}");
         if ($this->modx->db->getRecordCount($query)) {
             return 'Вы уже голосовали!';
         }
@@ -201,7 +202,7 @@ class starRating
         $tbl = $this->modx->getFullTableName('site_content');
         $q = $this->modx->db->select('id', $tbl, 'id='.intval($id).' AND published=1 AND deleted=0');
         if ($this->modx->db->getRecordCount($q) < 1) {
-            return 'Ошибка, повторите попытку позже!';
+            return 'Вы пытаетесь проголосовать за несуществующий материал!';
         }
         return true;
     }
