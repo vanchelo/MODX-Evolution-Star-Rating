@@ -1,14 +1,14 @@
 <?php
 
 /*
- * Сниппета - Звездный рейтинг
+ * Сниппет - Звездный рейтинг
  *
  * Вызов на странице - [!star_rating!]
  * Добавить в настройках системы тип новый тип содержимого - application/json
  * Создать новый документ с пустым шаблоном
  * Выбрать тип содержимого - application/json
- * Вставить в содержимое - [!star_rating!]
- * Указать алиал - star-rating.html
+ * Вставить в содержимое созданного ресурса - [!star_rating!]
+ * Ввести в поле алиаc - star-rating
  */
 
 require_once MODX_BASE_PATH."assets/snippets/star_rating/rating.class.php";
