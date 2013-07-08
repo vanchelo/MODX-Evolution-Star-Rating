@@ -96,7 +96,6 @@ $path = MODX_BASE_URL.'assets/snippets/star_rating/module/';
         </div>
         <div class="modal-footer">
             <button class="btn" data-dismiss="modal" aria-hidden="true">Закрыть</button>
-            <button class="btn btn-primary">Сохранить</button>
         </div>
     </div>
 
