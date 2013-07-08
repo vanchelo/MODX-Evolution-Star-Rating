@@ -27,6 +27,12 @@ class starRating
      */
     private $chunks = array();
 
+    /**
+     * Constructor
+     *
+     * @param DocumentParser $modx
+     * @param int            $rid
+     */
     function __construct(DocumentParser & $modx, $rid = 0)
     {
         $this->modx =& $modx;
@@ -36,6 +42,9 @@ class starRating
         $this->chunkPath = dirname(__FILE__).'/chunks/';
     }
 
+    /**
+     * @return array|bool
+     */
     public function process()
     {
         if ($this->viewOnly === true) {
@@ -64,6 +73,13 @@ class starRating
         return $output;
     }
 
+    /**
+     * @param string $msg
+     * @param string $html
+     * @param bool   $success
+     *
+     * @return array
+     */
     private function response($msg = '', $html = '', $success = false)
     {
         return array(
@@ -73,6 +89,12 @@ class starRating
         );
     }
 
+    /**
+     * Check Vote
+     *
+     * @param int $id
+     * @return bool|string
+     */
     private function checkVote($id = 0)
     {
         $id = (int) $id;
@@ -100,6 +122,13 @@ class starRating
         return true;
     }
 
+    /**
+     * Set Vote
+     *
+     * @param int $vote Vote
+     * @param int $rid Resource ID
+     * @return array|bool
+     */
     private function setVote($vote = 0, $rid = 0)
     {
         $vote = (int) $vote;
@@ -156,6 +185,12 @@ class starRating
         return $this->response('Спасибо за ваш голос! Оценка: '.$vote, $output, true);
     }
 
+    /**
+     * Get Rating
+     *
+     * @param int $rid Resource ID
+     * @return array
+     */
     private function getRating($rid = 0)
     {
         $query = $this->modx->db->select('*', $this->rating_table, "rid = {$rid}");
@@ -185,6 +220,11 @@ class starRating
         return $this->response('', $output, true);
     }
 
+    /**
+     * Get Client IP Address
+     *
+     * @return mixed
+     */
     private function getClientIp()
     {
         if (isset($_SERVER['HTTP_CLIENT_IP'])) {
@@ -198,38 +238,73 @@ class starRating
         return filter_var($ip, FILTER_VALIDATE_IP);
     }
 
+    /**
+     * Parse Template
+     *
+     * @param string $tpl
+     * @param array  $params
+     * @return mixed
+     */
     private function parseTpl($tpl = '', $params = array()) {
         foreach ($params as $n => $v) {
             $tpl = str_replace('[+'.$n.'+]', $v, $tpl);
         }
         $tpl = preg_replace('~\[\[(.*?)\]\]~', '', $tpl);
         return $tpl;
-    }
+}
 
+    /**
+     * Check the Resource availability by ID
+     *
+     * @param int $id
+     * @return bool|string
+     */
     private function checkRes($id = 0) {
         $tbl = $this->modx->getFullTableName('site_content');
-        $q = $this->modx->db->select('id', $tbl, 'id='.intval($id).' AND published=1 AND deleted=0');
-        if ($this->modx->db->getRecordCount($q) < 1) {
+        $id = intval($id);
+
+        $rs = $this->modx->db->query("SELECT COUNT(*) as total FROM {$tbl} WHERE id={$id} AND published=1 AND deleted=0");
+        $total = $this->modx->db->getRow($rs);
+        if (!intval($total['total'])) {
             return 'Вы пытаетесь проголосовать за несуществующий материал!';
         }
-        return true;
-    }
 
+        return true;
+}
+
+    /**
+     * Star width
+     *
+     * @param int $width Width in Pixels
+     */
     public function setWidth($width)
     {
         $this->width = (int) $width;
     }
 
+    /**
+     * Disable or Enable voting
+     *
+     * @param $viewOnly
+     */
     public function setViewOnly($viewOnly)
     {
         $this->viewOnly = (boolean) $viewOnly;
     }
 
+    /**
+     * Set Interval in seconds before next vote
+     *
+     * @param $interval
+     */
     public function setInterval($interval)
     {
         $this->interval = (int) $interval;
     }
 
+    /**
+     * @param string $tpl
+     */
     public function setTemplate($tpl = '') {
         if (!empty($tpl)) {
             $this->template = (string) $tpl;
@@ -262,6 +337,9 @@ class starRating
         return '';
     }
 
+    /**
+     * Translate
+     */
     private function translate() {
         return;
     }
