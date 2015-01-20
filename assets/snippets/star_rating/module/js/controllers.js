@@ -2,21 +2,19 @@ function ResourcesList($scope, $http) {
     var module_path = '/assets/snippets/star_rating/module/';
     $scope.url = module_path + 'connector.php';
     $scope.connector = module_path + 'processors/connector.php';
-    $http.get($scope.url).success(function(data) {
-        $scope.resources = data.data;
-        $scope.totalResources = data.total;
-        $scope.totalFounded = data.total;
-    });
 
-    $scope.getSortDir = function(column) {
+    $scope.getData = function () {
+        $http.get($scope.url).success(function (data) {
+            $scope.resources = data.data;
+            $scope.totalResources = data.total;
+            $scope.totalFounded = data.total;
+        });
+    };
+
+    $scope.getSortDir = function (column) {
         if ($scope.order == column) {
             return $scope.revers ? 'desc' : 'asc';
         }
-    };
-
-    $scope.edit = function(resource) {
-        $scope.longtitle = resource.longtitle;
-        $("#edit").modal('show');
     };
 
     $scope.order = 'id';
@@ -26,22 +24,16 @@ function ResourcesList($scope, $http) {
     $scope.type = '';
     $scope.revers = false;
 
-    $scope.update = function(id) {
-        console.log('ID: ', id);
-    };
-
-    $scope.change = function(order) {
+    $scope.change = function (order) {
         $scope.params = {
             limit: $scope.limit = parseInt($scope.limit, 10) || 10,
         };
-        if ($scope.order == order) {
-            $scope.revers = !$scope.revers;
-        } else {
-            $scope.revers = false;
-        }
-        if ($scope.query !== '') {
-            $scope.params.query = $scope.query;
-        }
+
+        if ($scope.order == order)$scope.revers = !$scope.revers;
+        else $scope.revers = false;
+
+        if ($scope.query !== '') $scope.params.query = $scope.query;
+
         if (order !== '' && typeof order !== 'undefined') {
             $scope.params.order = order;
             $scope.order = order;
@@ -49,37 +41,30 @@ function ResourcesList($scope, $http) {
             $scope.params.order = $scope.order
         }
 
-        if (parseInt($scope.id, 10)) {
-            $scope.params.id = parseInt($scope.id, 10);
-        }
-        if ($scope.type > 0) {
-            $scope.params.type = $scope.type;
-        }
+        if (parseInt($scope.id, 10)) $scope.params.id = parseInt($scope.id, 10);
+
+        if ($scope.type > 0) $scope.params.type = $scope.type;
 
         $scope.params.orderDir = $scope.revers ? 'DESC' : 'ASC';
         $http({
-            url   : $scope.url,
+            url: $scope.url,
             method: 'POST',
             params: $scope.params
         }).
-            success(function(data) {
+            success(function (data) {
                 $scope.resources = data.data;
                 $scope.totalFounded = data.total;
             });
     };
 
-    $scope.get = function(id) {
+    $scope.get = function (resource) {
         $http({
-            url    : $scope.connector,
-            method : 'POST',
-            headers: {
-                action: 'get'
-            },
-            params : {
-                id: id
-            }
+            url: $scope.connector,
+            method: 'POST',
+            headers: { action: 'get' },
+            params: { id: resource.id }
         }).
-            success(function(data) {
+            success(function (data) {
                 if (data.success == true) {
                     $scope.resource = data.data;
                     var modal = $("#edit");
@@ -87,4 +72,25 @@ function ResourcesList($scope, $http) {
                 }
             });
     };
+
+    $scope.reset = function (resource) {
+        if (!confirm('Обнулить рейтинг с голосами?')) {
+            return false;
+        }
+
+        $http({
+            url: $scope.connector,
+            method: 'get',
+            headers: { action: 'reset' },
+            params: { id: resource.id }
+        }).
+            success(function (data) {
+                if (data.success == true) {
+                    $scope.change();
+                    alert(data.message);
+                }
+            });
+    };
+
+    $scope.getData();
 }

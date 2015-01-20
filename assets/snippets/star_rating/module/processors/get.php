@@ -6,18 +6,15 @@ if (empty($properties['id']) || !intval($properties['id'])) {
 
 $id = (int) $properties['id'];
 
-$table = $this->db['table_prefix'].'site_content';
-$rating_table = $this->db['table_prefix'].'star_rating';
-$votes_table = $this->db['table_prefix'].'star_rating_votes';
+$table = $this->db['table_prefix'] . 'site_content';
+$rating_table = $this->db['table_prefix'] . 'star_rating';
+$votes_table = $this->db['table_prefix'] . 'star_rating_votes';
 
-$resource = ORM::for_table($table)
-    ->select_many(array(
-            'id',
-            'pagetitle',
-            'longtitle',
-        )
-    )
-    ->find_one($id);
+$resource = ORM::for_table($table)->select_many(array(
+    'id',
+    'pagetitle',
+    'longtitle',
+))->find_one($id);
 
 if (!$resource) {
     return $this->failure("Ресурс с ID {$id} не найден");
@@ -27,12 +24,11 @@ $resource = $resource->as_array();
 
 $votes = ORM::for_table($votes_table)
     ->select_many(array(
-            'id',
-            'vote',
-            'ip',
-            'time'
-        )
-    )
+        'id',
+        'vote',
+        'ip',
+        'time'
+    ))
     ->where_equal('rid', $id)
     ->find_array();
 

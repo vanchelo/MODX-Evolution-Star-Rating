@@ -10,11 +10,15 @@
     background-repeat: no-repeat;
     margin-left: 5px;
 }
-
 .asc {
     background-position: -288px -120px;
 }
-
 .desc {
     background-position: -313px -119px;
+}
+.information {
+    text-align: center;
+}
+.information > span {
+    margin-right: 20px;
 }

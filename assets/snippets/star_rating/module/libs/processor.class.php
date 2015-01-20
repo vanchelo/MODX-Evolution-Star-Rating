@@ -135,7 +135,7 @@ class Processor {
      *
      * @return array
      */
-    public function success($msg = '', $data) {
+    public function success($msg = '', $data = array()) {
         return array(
             'success' => true,
             'message' => $msg,

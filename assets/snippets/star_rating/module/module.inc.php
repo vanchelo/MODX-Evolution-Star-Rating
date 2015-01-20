@@ -4,14 +4,14 @@ if (!isset($modx) || !$modx instanceof DocumentParser) {
     die;
 }
 
-$path = MODX_BASE_URL.'assets/snippets/star_rating/module/';
+$path = MODX_BASE_URL . 'assets/snippets/star_rating/module/';
 ?>
 <!doctype html>
 <html lang="en" ng-app ng-controller="ResourcesList">
 
 <head>
     <meta charset="utf-8">
-    <title>My HTML File</title>
+    <title>Star Rating</title>
     <link rel="stylesheet" href="<?php echo $path; ?>css/app.css"/>
     <link rel="stylesheet" href="<?php echo $path; ?>css/bootstrap.min.css"/>
     <link rel="stylesheet" href="<?php echo $path; ?>css/bootstrap-responsive.min.css"/>
