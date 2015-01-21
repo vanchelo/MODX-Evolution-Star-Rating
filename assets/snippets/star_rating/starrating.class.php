@@ -5,7 +5,6 @@
  *
  * @author vanchelo <brezhnev.ivan@yahoo.com>
  */
-
 class StarRating {
     /**
      * @var string Rating main table
@@ -48,27 +47,20 @@ class StarRating {
     private $lang;
 
     /**
-     * @var int
-     */
-    private $rid;
-
-    /**
      * Constructor
      *
      * @param DocumentParser $modx
-     * @param int            $rid Document ID
      * @param array          $config
      */
-    function __construct(DocumentParser & $modx, $rid = 0, array $config = array()) {
+    function __construct(DocumentParser & $modx, array $config = array()) {
         $this->modx =& $modx;
         $this->db =& $modx->db;
-
-        $this->rid = (int) $rid;
 
         $this->rating_table = $this->modx->getFullTableName('star_rating');
         $this->votes_table = $this->modx->getFullTableName('star_rating_votes');
 
         $this->config = array_merge(array(
+            'id' => $modx->documentObject['id'],
             'path' => __DIR__ . '/',
             'relativePath' => '/assets/snippets/star_rating/',
             'assetsUrl' => MODX_BASE_URL . 'assets/snippets/star_rating/assets/',
@@ -79,34 +71,37 @@ class StarRating {
             'lang' => 'ru',
             'width' => 16, // Star width in pixels
             'tpl' => 'template', // Name of template file chunk
-            'interval' => 24 * 60 * 60, // The period between votings in seconds
-        ));
+            'interval' => 24 * 60 * 60, // The period between votings in seconds,
+            'noJs' => false,
+            'noCss' => false,
+        ), $config);
 
-        $this->setSnippetProperties($config);
+        $this->setProperties($this->config);
     }
 
-    private function setSnippetProperties($config) {
-        if (isset($config['tpl']))
-            $this->setTemplate($config['tpl']);
-
-        if (isset($config['width']))
-            $this->setWidth($config['width']);
-
-        if (isset($config['interval']))
-            $this->setInterval($config['interval']);
-
-        $this->setLang(isset($config['lang']) ? $config['lang'] : null);
+    /**
+     * Set custom properties
+     *
+     * @param array $config
+     */
+    private function setProperties(array $config) {
+        $this->setLang($config['lang']);
     }
 
     /**
      * @return StarRatingResponse
      */
     public function process() {
-        $this->modx->regClientHTMLBlock('<script>window.jQuery || document.write(\'<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">\x3C/script>\');</script>');
-        $this->modx->regClientStartupHTMLBlock('<link rel="stylesheet" href="' . $this->config['assetsUrl'] . 'css/style.css"/>');
-        $this->modx->regClientHTMLBlock('<script src="' . $this->config['assetsUrl'] . 'js/script.js"></script>');
+        if (!$this->config['noJs']) {
+            $this->modx->regClientHTMLBlock('<script>window.jQuery || document.write(\'<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">\x3C/script>\');</script>');
+            $this->modx->regClientHTMLBlock('<script src="' . $this->config['assetsUrl'] . 'js/script.js"></script>');
+        }
 
-        $output = $this->getRating($this->rid);
+        if (!$this->config['noCss']) {
+            $this->modx->regClientStartupHTMLBlock('<link rel="stylesheet" href="' . $this->config['assetsUrl'] . 'css/style.css"/>');
+        }
+
+        $output = $this->getRating($this->config['id']);
 
         return $output;
     }
@@ -364,7 +359,12 @@ class StarRating {
             $this->config['lang'] = (string) $lang;
         }
 
-        $this->lang = require __DIR__ . '/langs/' . $this->config['lang'] . '.php';
+        $file = __DIR__ . '/langs/' . $this->config['lang'] . '.php';
+        if (!file_exists($file)) {
+            $file = __DIR__ . '/langs/ru.php';
+        }
+
+        $this->lang = require $file;
     }
 
     /**
