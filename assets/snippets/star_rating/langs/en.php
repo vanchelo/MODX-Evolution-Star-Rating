@@ -2,7 +2,7 @@
 
 return array(
     'star_rating' => 'Star Rating',
-    'ratings' => 'Рейтинги',
+    'ratings' => 'Ratings',
     'rid_error' => 'Некорретный ID документа',
     'success_voted' => 'Спасибо за Ваш голос',
     'rating_not_found' => 'Вы пытаетесь проголосовать за несуществующий рейтинг',
