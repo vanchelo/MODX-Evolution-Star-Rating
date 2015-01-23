@@ -1,6 +1,7 @@
-# Star Rating for MODX Evolution / Звездный рейтинг для MODX Evolution
+# Звездный рейтинг для MODX Evolution
+## Star Rating for MODX Evolution
 
-## Установка
+### Установка
 
 Создать новый сниппет star_rating (название сниппета не имеет значения), со следующим содержимым:
 
