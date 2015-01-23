@@ -22,7 +22,8 @@ if (!$rating->method('get') || !$rating->ajax()) {
 
 $response = $rating->vote(
     isset($_GET['id']) ? $_GET['id'] : null,
-    isset($_GET['vote']) ? $_GET['vote'] : null
+    isset($_GET['vote']) ? $_GET['vote'] : null,
+    isset($_GET['tpl']) ? (string) $_GET['tpl'] : ''
 );
 
-return $response->display();
+$response->display();

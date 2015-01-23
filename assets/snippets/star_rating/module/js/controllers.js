@@ -1,13 +1,15 @@
 function ResourcesList($scope, $http) {
     var module_path = '/assets/snippets/star_rating/module/';
-    $scope.url = module_path + 'connector.php';
     $scope.connector = module_path + 'processors/connector.php';
 
     $scope.getData = function () {
-        $http.get($scope.url).success(function (data) {
+        $http({
+            url: $scope.connector,
+            method: 'get',
+            headers: {action: 'list'}
+        }).success(function (data) {
             $scope.resources = data.data;
-            $scope.totalResources = data.total;
-            $scope.totalFounded = data.total;
+            $scope.total = data.total;
         });
     };
 
@@ -29,7 +31,7 @@ function ResourcesList($scope, $http) {
             limit: $scope.limit = parseInt($scope.limit, 10) || 10,
         };
 
-        if ($scope.order == order)$scope.revers = !$scope.revers;
+        if ($scope.order == order) $scope.revers = !$scope.revers;
         else $scope.revers = false;
 
         if ($scope.query !== '') $scope.params.query = $scope.query;
@@ -47,13 +49,14 @@ function ResourcesList($scope, $http) {
 
         $scope.params.orderDir = $scope.revers ? 'DESC' : 'ASC';
         $http({
-            url: $scope.url,
+            url: $scope.connector,
             method: 'POST',
+            headers: {action: 'list'},
             params: $scope.params
         }).
             success(function (data) {
                 $scope.resources = data.data;
-                $scope.totalFounded = data.total;
+                $scope.total = data.total;
             });
     };
 
@@ -61,8 +64,8 @@ function ResourcesList($scope, $http) {
         $http({
             url: $scope.connector,
             method: 'POST',
-            headers: { action: 'get' },
-            params: { id: resource.id }
+            headers: {action: 'get'},
+            params: {id: resource.id}
         }).
             success(function (data) {
                 if (data.success == true) {
@@ -81,13 +84,12 @@ function ResourcesList($scope, $http) {
         $http({
             url: $scope.connector,
             method: 'get',
-            headers: { action: 'reset' },
-            params: { id: resource.id }
+            headers: {action: 'reset'},
+            params: {id: resource.id}
         }).
             success(function (data) {
                 if (data.success == true) {
                     $scope.change();
-                    alert(data.message);
                 }
             });
     };

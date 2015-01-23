@@ -13,20 +13,26 @@
         .table th { cursor: pointer; }
         .table td, .table th { vertical-align: middle; }
     </style>
+
+    <!-- Scripts -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="<?= $app->getConfig('moduleUrl') ?>js/bootstrap.min.js"></script>
+    <script src="<?= $app->getConfig('moduleUrl') ?>libs/angular/angular.js"></script>
+    <script src="<?= $app->getConfig('moduleUrl') ?>js/controllers.js"></script>
+    <!-- Scripts -->
 </head>
 
-<body ng-controller="ResourcesList">
+<body ng-controller="ResourcesList" ng-cloak>
 
 <div class="container">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-8">
             <h3 style="margin: 0"><?= $app->trans('star_rating') ?></h3>
         </div>
-        <div class="col-md-6 text-right">
+        <div class="col-md-4 text-right">
             <div class="information">
-                <span><b>Всего ресурсов</b> &middot; <span class="label label-success">{{ totalResources }}</span></span>
-                <span><b>Найдено</b> &middot; <span class="label label-success">{{ totalFounded }}</span></span>
-                <span><b>Показано</b> &middot; <span class="label label-success">{{ resources.length }}</span></span>
+                <span><b>Всего</b> &middot; <span class="label label-success" ng-bind="total"></span></span>
+                <span><b>Показано</b> &middot; <span class="label label-success" ng-bind="resources.length"></span></span>
             </div>
         </div>
     </div>
@@ -35,7 +41,7 @@
 
     <form class="form-inline">
         <div class="form-group" style="margin-right: 10px">
-            <input style="width: 300px;" type="text" class="form-control" ng-model="query" ng-change="change()" placeholder="Поиск по названию...">
+            <input style="width: 300px;" type="text" class="form-control" ng-model="query" ng-change="change()" placeholder="Поиск по названию документа">
         </div>
         <div class="form-group" style="margin-right:10px">
             <label for="perPage">Кол-во</label>
@@ -45,6 +51,7 @@
             <label for="resId">ID ресурса</label>
             <input style="width: 80px" type="text" class="form-control text-center" id="resId" ng-model="id" ng-change="change()">
         </div>
+            <button class="btn btn-default pull-right" ng-click="change()">Обновить</button>
     </form>
 
     <hr/>
@@ -62,11 +69,11 @@
         </tr>
         </thead>
         <tr ng-repeat="resource in resources" ng-dblclick="get(resource.id)">
-            <td style="text-align:center">{{ resource.id }}</td>
-            <td>{{ resource.pagetitle }}</td>
-            <td style="text-align:center">{{ resource.rating || '-' }}</td>
-            <td style="text-align:center">{{ resource.total || '-' }}</td>
-            <td style="text-align:center">{{ resource.votes || '-' }}</td>
+            <td style="text-align:center" ng-bind="resource.id"></td>
+            <td ng-bind="resource.pagetitle"></td>
+            <td style="text-align:center" ng-bind="resource.rating || '-'"></td>
+            <td style="text-align:center" ng-bind="resource.total || '-'"></td>
+            <td style="text-align:center" ng-bind="resource.votes || '-'"></td>
             <td>
                 <button class="btn btn-success btn-xs" ng-click="get(resource)">Инфо</button>
                 <button class="btn btn-danger btn-xs" ng-click="reset(resource)">Сбросить</button>
@@ -82,7 +89,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">{{ resource.pagetitle }}</h4>
+                    <h4 class="modal-title" ng-bind="resource.pagetitle"></h4>
                 </div>
                 <div class="modal-body">
                     <table class="table table-striped table-hover table-condensed">
@@ -94,11 +101,11 @@
                             <th style="width:100px">IP</th>
                         </tr>
                         </thead>
-                        <tr ng-repeat="vote in resource.votes" ng-dblclick="get(resource.id)">
-                            <td>{{ vote.id }}</td>
-                            <td>{{ vote.vote }}</td>
-                            <td>{{ vote.date }} в {{ vote.time }}</td>
-                            <td>{{ vote.ip }}</td>
+                        <tr ng-repeat="vote in resource.votes">
+                            <td ng-bind="vote.id"></td>
+                            <td ng-bind="vote.vote"></td>
+                            <td><span ng-bind="vote.date"></span> в <span ng-bind="vote.time"></span></td>
+                            <td ng-bind="vote.ip"></td>
                         </tr>
                     </table>
                 </div>
@@ -109,13 +116,6 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 </div>
-
-<!-- Scripts -->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script src="<?= $app->getConfig('moduleUrl') ?>js/bootstrap.min.js"></script>
-<script src="<?= $app->getConfig('moduleUrl') ?>libs/angular/angular.js"></script>
-<script src="<?= $app->getConfig('moduleUrl') ?>js/controllers.js"></script>
-<!-- Scripts -->
 
 </body>
 </html>

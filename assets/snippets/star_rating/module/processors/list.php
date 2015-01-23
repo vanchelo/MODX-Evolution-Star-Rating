@@ -1,47 +1,70 @@
 <?php
 
-if (empty($properties['id']) || !intval($properties['id'])) {
-    return $this->failure('Не указан ID ресурса');
+$query = '';
+$limit = 100;
+$order = 'id';
+$results = array();
+$table = $this->dbConfig['table_prefix'] . 'site_content';
+$rating_table = $this->dbConfig['table_prefix'] . 'star_rating';
+
+$order_dir = !empty($_REQUEST['orderDir']) ? (string) $_REQUEST['orderDir'] : 'ASC';
+
+$q = ORM::for_table($table);
+$q->table_alias('sc');
+$q->where_equal('sc.published', 1);
+$q->where_equal('sc.deleted', 0);
+/*
+ * Если нужно показывать только ресурсы с опред. шаблонами
+ */
+// $q->where_in('sc.template', array(29, 33));
+
+if (!empty($_REQUEST['query']) && is_string($_REQUEST['query'])) {
+    $q->where_raw('(sc.pagetitle LIKE "%"?"%" OR sc.longtitle LIKE "%"?"%")', array(
+        $_REQUEST['query'],
+        $_REQUEST['query'],
+    ));
 }
 
-$id = (int) $properties['id'];
-
-$table = $this->db['table_prefix'].'site_content';
-$rating_table = $this->db['table_prefix'].'star_rating';
-$votes_table = $this->db['table_prefix'].'star_rating_votes';
-
-$resource = ORM::for_table($table)
-    ->select_many(array(
-            'id',
-            'longtitle',
-        )
-    )
-    ->find_one($id);
-
-if (!$resource) {
-    return $this->failure("Ресурс с ID {$id} не найден");
+if (!empty($_REQUEST['id']) && is_numeric($_REQUEST['id'])) {
+    $q->where_like('sc.id', (int) $_REQUEST['id']);
 }
 
-$resource = $resource->as_array();
+$q->inner_join($rating_table, 'sc.id = r.rid', 'r');
 
-$votes = ORM::for_table($votes_table)
-    ->select_many(array(
-            'id',
-            'vote',
-            'ip',
-            'time'
-        )
-    )
-    ->where_equal('rid', $id)
-    ->find_array();
+$total = $q->count('sc.id');
 
-$resource['votes'] = array();
-if (!empty($votes)) {
-    foreach ($votes as $vote) {
-        $vote['date'] = date('d.m.Y', $vote['time']);
-        $vote['time'] = date('H:i:s', $vote['time']);
-        $resource['votes'][] = $vote;
-    }
+if (!empty($_REQUEST['order']) && is_string($_REQUEST['order'])) {
+    $order = $this->app->e($_REQUEST['order']);
 }
 
-return $this->success('', $resource);
+if (!empty($_REQUEST['limit']) && is_numeric($_REQUEST['limit'])) {
+    $limit = intval($_REQUEST['limit']);
+}
+
+$q->select_many(array('r.*'));
+
+$q->select_many(array(
+    'sc.id',
+    'sc.pagetitle',
+    'sc.longtitle',
+));
+
+switch ($order_dir) {
+    case 'DESC':
+        $q->order_by_desc($order);
+        break;
+    default:
+        $q->order_by_asc($order);
+        break;
+}
+
+$q->limit($limit);
+
+if ($total > 0) {
+    $results = $q->find_array();
+}
+
+return $this->response->data(array(
+    'data' => $results,
+    'total' => $total
+));

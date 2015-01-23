@@ -1,16 +1,16 @@
 <?php
+
 /**
  * Processor
  *
  * @package Grid
  */
-
 class Processor {
     /**
      * The absolute path to this processor
-     * @var string $path
+     * @var string $action
      */
-    public $path;
+    public $action;
     /**
      * A reference to the Database config
      * @var array $db
@@ -23,15 +23,40 @@ class Processor {
     public $properties = array();
 
     /**
+     * @var StarRatingResponse
+     */
+    public $response;
+
+    /**
+     * @var StarRating
+     */
+    public $app;
+
+    /**
+     * @var DocumentParser
+     */
+    public $modx;
+
+    /**
+     * @var array
+     */
+    public $dbConfig;
+
+    /**
      * Creates a Processor object.
      *
-     * @param DocumentParser $modx A reference to the DocumentParser instance
-     * @param array $properties An array of properties
+     * @param StarRating     $app A reference to the StarRating instance
+     * @param string         $action Processor action
+     * @param array          $properties An array of properties
      */
-    function __construct(DocumentParser & $modx, array $properties = array()) {
-        $this->modx =& $modx;
-        $this->properties = $properties;
-        $this->db =& $this->modx->db->config;
+    function __construct(StarRating & $app, $action = 'list', array $properties = array()) {
+        $this->app =& $app;
+        $this->response = $app->response();
+        $this->modx =& $app->getModx();
+        $this->action = $action;
+        $this->setProperties($properties);
+        $this->db =& $app->getDB();
+        $this->dbConfig =& $app->getDB()->config;
     }
 
     /**
@@ -40,6 +65,10 @@ class Processor {
      */
     public function run() {
         $o = $this->process();
+
+        if ($o instanceof StarRatingResponse) {
+            return $o->display(false);
+        }
 
         return json_encode($o);
     }
@@ -52,22 +81,24 @@ class Processor {
     public function process() {
         $modx =& $this->modx;
         $properties = $this->getProperties();
-        if (!file_exists($this->path)) {
-            return $this->failure('Процессор не найден');
+        $processor = $this->action . '.php';
+
+        if (!file_exists($processor)) {
+            return $this->response->error('Процессор не найден');
         }
-        $o = include $this->path;
+
+        $o = include $processor;
 
         return $o;
     }
 
     /**
      * Set the path of the processor
-     * @param string $path The absolute path
      *
-     * @return void
+     * @param string $action The absolute path
      */
-    public function setPath($path) {
-        $this->path = $path;
+    public function setAction($action) {
+        $this->action = preg_replace('/[^a-z]+/si', '', $action);
     }
 
     /**
@@ -96,8 +127,6 @@ class Processor {
      *
      * @param string $k
      * @param mixed  $v
-     *
-     * @return void
      */
     public function setProperty($k, $v) {
         $this->properties[$k] = $v;
@@ -113,34 +142,6 @@ class Processor {
     public function setProperties($properties) {
         unset($properties['action']);
         $this->properties = array_merge($this->properties, $properties);
-    }
-
-    /**
-     * Return a failure message from the processor.
-     * @param string $msg
-     *
-     * @return array
-     */
-    public function failure($msg) {
-        return array(
-            'success' => false,
-            'message' => $msg
-        );
-    }
-
-    /**
-     * Return a success message from the processor.
-     * @param string $msg
-     * @param mixed $data
-     *
-     * @return array
-     */
-    public function success($msg = '', $data = array()) {
-        return array(
-            'success' => true,
-            'message' => $msg,
-            'data' => $data
-        );
     }
 
 }

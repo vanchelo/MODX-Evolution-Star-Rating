@@ -113,10 +113,20 @@ class StarRatingResponse {
         return isset($this->data[$key]) ? $this->data[$key] : $defaul;
     }
 
-    public function display() {
-        header('Content-Type: application/json; charset=UTF-8');
-        echo $this->toJson();
+    /**
+     * @param bool $echo
+     *
+     * @return null
+     */
+    public function display($echo = true) {
+        $output = $this->toJson();
 
-        return null;
+        if ($echo) {
+            header('Content-Type: application/json; charset=UTF-8');
+            echo $output;
+            exit();
+        }
+
+        return $output;
     }
 }

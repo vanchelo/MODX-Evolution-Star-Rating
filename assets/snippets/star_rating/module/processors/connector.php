@@ -9,7 +9,6 @@ define('MODX_API_MODE', true);
 
 include_once dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))) . '/index.php';
 require_once __DIR__ . '/../../starrating.class.php';
-require_once __DIR__ . '/../../starratingresponse.class.php';
 
 $modx->db->connect();
 if (empty($modx->config)) {
@@ -20,9 +19,6 @@ $modx->invokeEvent('OnWebPageInit');
 
 $rating = new StarRating($modx);
 $dbConfig =& $rating->getDB()->config;
-
-/*error_reporting(E_ALL);
-ini_set("display_errors", 1);*/
 
 /**
  * Подключаем ORM Idiorm для комфортной работы с базой данных
@@ -56,20 +52,8 @@ if (!empty($_SERVER['HTTP_ACTION'])) {
     die;
 }
 
-switch ($action) {
-    case 'get':
-        $processor = new Processor($modx, $_REQUEST);
-        $processor->setPath('get.php');
-        $output = $processor->run();
-        break;
-    case 'reset':
-        $processor = new Processor($modx, $_REQUEST);
-        $processor->setPath('reset.php');
-        $output = $processor->run();
-        break;
-    default:
-        $output = '';
-}
+$processor = new Processor($rating, $action, $_REQUEST);
+$output = $processor->run();
 
 echo $output;
 ob_end_flush();

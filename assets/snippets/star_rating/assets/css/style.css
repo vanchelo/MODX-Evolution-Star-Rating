@@ -1,141 +1,141 @@
 .star-rating-container {
-  position: relative;
+    position: relative;
 }
 .star-rating {
-  background: url('../img/stars.png') repeat-x scroll left top transparent;
-  display: inline-block;
-  height: 16px;
-  list-style: none outside none;
-  margin: 0 !important;
-  padding: 0 !important;
-  position: relative;
-  top: 3px;
-  width: 80px;
+    background: url('../img/stars.png') repeat-x scroll left top transparent;
+    display: inline-block;
+    height: 16px;
+    list-style: none outside none;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative;
+    top: 3px;
+    width: 80px;
 }
 .star-rating li.current-rating {
-  background: url('../img/stars.png') repeat scroll left center transparent;
-  display: block;
-  height: 16px;
-  position: absolute;
-  text-indent: -9000px;
-  z-index: 1;
+    background: url('../img/stars.png') repeat scroll left center transparent;
+    display: block;
+    height: 16px;
+    position: absolute;
+    text-indent: -9000px;
+    z-index: 1;
 }
 .star-rating li {
-  text-indent: -9000px;
+    text-indent: -9000px;
 }
 .star-rating li {
-  float: left;
-  margin: 0;
-  padding: 0;
+    float: left;
+    margin: 0;
+    padding: 0;
 }
 .star-rating li a {
-  border: 0 none;
-  display: block;
-  height: 16px;
-  outline: medium none;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  text-decoration: none;
-  text-indent: -9000px;
-  width: 16px;
-  z-index: 20;
+    border: 0 none;
+    display: block;
+    height: 16px;
+    outline: medium none;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    text-decoration: none;
+    text-indent: -9000px;
+    width: 16px;
+    z-index: 20;
 }
 .star-rating a.one-star, .star-rating li.one-star {
-  left: 0;
+    left: 0;
 }
 .star-rating a.two-stars, .star-rating li.two-stars {
-  left: 16px;
+    left: 16px;
 }
 .star-rating a.three-stars, .star-rating li.three-stars {
-  left: 32px;
+    left: 32px;
 }
 .star-rating a.four-stars, .star-rating li.four-stars {
-  left: 48px;
+    left: 48px;
 }
 .star-rating a.five-stars, .star-rating li.five-stars {
-  left: 64px;
+    left: 64px;
 }
 .star-rating li a:hover {
-  background: url('../img/stars.png') repeat scroll left bottom transparent;
-  left: 0;
-  z-index: 2;
+    background: url('../img/stars.png') repeat scroll left bottom transparent;
+    left: 0;
+    z-index: 2;
 }
 .star-rating a.one-stars:hover {
-  width: 16px;
+    width: 16px;
 }
 .star-rating a.two-stars:hover {
-  width: 32px;
+    width: 32px;
 }
 .star-rating a.three-stars:hover {
-  width: 48px;
+    width: 48px;
 }
 .star-rating a.four-stars:hover {
-  width: 64px;
+    width: 64px;
 }
 .star-rating a.five-stars:hover {
-  width: 80px;
+    width: 80px;
 }
 .mask {
-  background-color: rgba(20, 20, 20, 0.2);
-  background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba(255, 255, 255, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba(255, 255, 255, 0.15)), color-stop(0.75, rgba(255, 255, 255, 0.15)), color-stop(0.75, transparent), to(transparent));
-  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
-  background-image: -moz-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
-  background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
-  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
-  -webkit-background-size: 40px 40px;
-  -moz-background-size: 40px 40px;
-  -o-background-size: 40px 40px;
-  background-size: 40px 40px;
-  height: 100%;
-  left: 0;
-  position: absolute;
-  top: -5px;
-  width: 100%;
-  z-index: 100;
-  -webkit-animation: progress-bar-stripes 2s linear infinite;
-  -moz-animation: progress-bar-stripes 2s linear infinite;
-  -ms-animation: progress-bar-stripes 2s linear infinite;
-  -o-animation: progress-bar-stripes 2s linear infinite;
-  animation: progress-bar-stripes 2s linear infinite;
+    background-color: rgba(20, 20, 20, 0.2);
+    background-image: -webkit-gradient(linear, 0 100%, 100% 0, color-stop(0.25, rgba(255, 255, 255, 0.15)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba(255, 255, 255, 0.15)), color-stop(0.75, rgba(255, 255, 255, 0.15)), color-stop(0.75, transparent), to(transparent));
+    background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: -moz-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+    -webkit-background-size: 40px 40px;
+    -moz-background-size: 40px 40px;
+    -o-background-size: 40px 40px;
+    background-size: 40px 40px;
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: -5px;
+    width: 100%;
+    z-index: 100;
+    -webkit-animation: progress-bar-stripes 2s linear infinite;
+    -moz-animation: progress-bar-stripes 2s linear infinite;
+    -ms-animation: progress-bar-stripes 2s linear infinite;
+    -o-animation: progress-bar-stripes 2s linear infinite;
+    animation: progress-bar-stripes 2s linear infinite;
 }
 @-webkit-keyframes progress-bar-stripes {
-  from {
-    background-position: 40px 0
-  }
-  to {
-    background-position: 0 0
-  }
+    from {
+        background-position: 40px 0
+    }
+    to {
+        background-position: 0 0
+    }
 }
 @-moz-keyframes progress-bar-stripes {
-  from {
-    background-position: 40px 0
-  }
-  to {
-    background-position: 0 0
-  }
+    from {
+        background-position: 40px 0
+    }
+    to {
+        background-position: 0 0
+    }
 }
 @-ms-keyframes progress-bar-stripes {
-  from {
-    background-position: 40px 0
-  }
-  to {
-    background-position: 0 0
-  }
+    from {
+        background-position: 40px 0
+    }
+    to {
+        background-position: 0 0
+    }
 }
 @-o-keyframes progress-bar-stripes {
-  from {
-    background-position: 0 0
-  }
-  to {
-    background-position: 40px 0
-  }
+    from {
+        background-position: 0 0
+    }
+    to {
+        background-position: 40px 0
+    }
 }
 @keyframes progress-bar-stripes {
-  from {
-    background-position: 40px 0
-  }
-  to {
-    background-position: 0 0
-  }
+    from {
+        background-position: 40px 0
+    }
+    to {
+        background-position: 0 0
+    }
 }

@@ -16,9 +16,9 @@
 .desc {
     background-position: -313px -119px;
 }
-.information {
-    text-align: center;
-}
 .information > span {
     margin-right: 20px;
+}
+.information > span:last-child {
+    margin-right: 0;
 }

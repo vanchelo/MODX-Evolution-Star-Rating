@@ -1,14 +1,14 @@
 <?php
 
 if (empty($properties['id']) || !intval($properties['id'])) {
-    return $this->failure('Не указан ID ресурса');
+    return $this->response->error('Не указан ID ресурса');
 }
 
 $id = (int) $properties['id'];
 
-$table = $this->db['table_prefix'] . 'site_content';
-$rating_table = $this->db['table_prefix'] . 'star_rating';
-$votes_table = $this->db['table_prefix'] . 'star_rating_votes';
+$table = $this->dbConfig['table_prefix'] . 'site_content';
+$rating_table = $this->dbConfig['table_prefix'] . 'star_rating';
+$votes_table = $this->dbConfig['table_prefix'] . 'star_rating_votes';
 
 $resource = ORM::for_table($table)->select_many(array(
     'id',
@@ -17,7 +17,7 @@ $resource = ORM::for_table($table)->select_many(array(
 ))->find_one($id);
 
 if (!$resource) {
-    return $this->failure("Ресурс с ID {$id} не найден");
+    return $this->response->error("Ресурс с ID \"{$id}\" не найден");
 }
 
 $resource = $resource->as_array();
@@ -33,6 +33,7 @@ $votes = ORM::for_table($votes_table)
     ->find_array();
 
 $resource['votes'] = array();
+
 if (!empty($votes)) {
     foreach ($votes as $vote) {
         $vote['date'] = date('d.m.Y', $vote['time']);
@@ -41,4 +42,6 @@ if (!empty($votes)) {
     }
 }
 
-return $this->success('', $resource);
+return $this->response->data(array(
+    'data' => $resource
+));

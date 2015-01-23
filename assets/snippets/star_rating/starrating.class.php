@@ -27,11 +27,6 @@ class StarRating {
     private $db;
 
     /**
-     * @var boolean If set to True users can't add votes
-     */
-    private $viewOnly = false;
-
-    /**
      * @var array An array of templates chunks
      */
     private $chunks = array();
@@ -47,36 +42,37 @@ class StarRating {
     private $lang;
 
     /**
+     * @var self
+     */
+    private static $scriptsLoaded = false;
+
+    /**
      * Constructor
      *
      * @param DocumentParser $modx
      * @param array          $config
      */
-    function __construct(DocumentParser & $modx, array $config = array()) {
+    public function __construct(DocumentParser & $modx, array $config = array()) {
         $this->modx =& $modx;
         $this->db =& $modx->db;
 
         $this->rating_table = $this->modx->getFullTableName('star_rating');
         $this->votes_table = $this->modx->getFullTableName('star_rating_votes');
 
+        $this->setConfigFromSnippet($config);
+
+        $this->setProperties($this->config);
+    }
+
+    public function setConfigFromSnippet(array & $config) {
         $this->config = array_merge(array(
-            'id' => $modx->documentObject['id'],
-            'path' => __DIR__ . '/',
-            'relativePath' => '/assets/snippets/star_rating/',
-            'assetsUrl' => MODX_BASE_URL . 'assets/snippets/star_rating/assets/',
-            'moduleUrl' => MODX_BASE_URL . 'assets/snippets/star_rating/module/',
-            'viewsDir' => __DIR__ . '/views/',
-            'connectorUrl' => '/assets/snippets/star_rating/module/connector.php',
-            'chunksDir' => __DIR__ . '/chunks/',
             'lang' => 'ru',
             'width' => 16, // Star width in pixels
             'tpl' => 'template', // Name of template file chunk
-            'interval' => 24 * 60 * 60, // The period between votings in seconds,
+            'interval' => 24 * 60 * 60, // The interval between votings in seconds
             'noJs' => false,
             'noCss' => false,
         ), $config);
-
-        $this->setProperties($this->config);
     }
 
     /**
@@ -84,17 +80,32 @@ class StarRating {
      *
      * @param array $config
      */
-    private function setProperties(array $config) {
+    private function setProperties(array & $config) {
         $this->setLang($config['lang']);
+
+        if (empty($config['id'])) {
+            $config['id'] = $this->modx->documentObject['id'];
+        }
+
+        $this->config = array_merge($config, array(
+            'path' => __DIR__ . '/',
+            'relativePath' => '/assets/snippets/star_rating/',
+            'assetsUrl' => MODX_BASE_URL . 'assets/snippets/star_rating/assets/',
+            'moduleUrl' => MODX_BASE_URL . 'assets/snippets/star_rating/module/',
+            'viewsDir' => __DIR__ . '/views/',
+            'connectorUrl' => '/assets/snippets/star_rating/module/connector.php',
+            'chunksDir' => __DIR__ . '/chunks/'
+        ));
     }
 
     /**
      * @return StarRatingResponse
      */
     public function process() {
-        if (!$this->config['noJs']) {
+        if (!$this->config['noJs'] && !$this->scriptsLoaded()) {
             $this->modx->regClientHTMLBlock('<script>window.jQuery || document.write(\'<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">\x3C/script>\');</script>');
             $this->modx->regClientHTMLBlock('<script src="' . $this->config['assetsUrl'] . 'js/script.js"></script>');
+            $this->scriptsLoaded(true);
         }
 
         if (!$this->config['noCss']) {
@@ -106,21 +117,28 @@ class StarRating {
         return $output;
     }
 
-    public function vote($rid, $vote) {
-        $rid = (int) $rid;
-        $vote = (int) $vote;
+    public function scriptsLoaded($loaded = false) {
+        if (!$loaded) return self::$scriptsLoaded;
 
-        if (!$vote || !$rid) {
-            return $this->response()->error('Ошибка. Неверные данные');
+        self::$scriptsLoaded = (bool) $loaded;
+    }
+
+    public function vote($id, $vote, $tpl) {
+        $id = (int) $id;
+        $vote = (int) $vote;
+        $tpl = base64_decode($tpl);
+
+        if (!$vote || !$id) {
+            return $this->response()->error($this->trans('something_went_wrong'));
         }
 
-        $checkVote = $this->checkVote($rid);
+        $checkVote = $this->checkVote($id);
 
         if ($checkVote !== true) {
             return $this->response()->error($checkVote);
         }
 
-        return $this->setVote($vote, $rid);
+        return $this->setVote($vote, $id, $tpl);
     }
 
     /**
@@ -141,7 +159,7 @@ class StarRating {
             return 'Возможность голосования для вас закрыта!';
         }
 
-        $checkRes = $this->checkRes($id);
+        $checkRes = $this->isResourceExists($id);
 
         if ($checkRes !== true) {
             return $checkRes;
@@ -150,7 +168,7 @@ class StarRating {
         $time = time() - $this->config['interval'];
         $query = $this->db->select('*', $this->votes_table, "ip = '{$ip}' AND  rid = {$id} AND time > {$time}");
         if ($this->db->getRecordCount($query)) {
-            return 'Вы уже голосовали!';
+            return $this->trans('already_voted');
         }
 
         return true;
@@ -159,21 +177,22 @@ class StarRating {
     /**
      * Set Vote
      *
-     * @param int $vote Vote
-     * @param int $rid Resource ID
+     * @param int    $vote Vote
+     * @param int    $id Resource ID
+     * @param string $tpl Template
      *
      * @return array|bool
      */
-    private function setVote($vote = 0, $rid = 0) {
+    private function setVote($vote = 0, $id = 0, $tpl = '') {
         $vote = (int) $vote;
-        $rid = (int) $rid;
-        if ($vote == 0 || $rid == 0 || $vote > 5) {
+        $id = (int) $id;
+        if ($vote == 0 || $id == 0 || $vote > 5) {
             return false;
         }
 
         $votes = 1;
 
-        $query = $this->db->select('*', $this->rating_table, "rid = {$rid}");
+        $query = $this->db->select('*', $this->rating_table, "rid = {$id}");
         $data = $this->db->getRow($query);
 
         if ($data) {
@@ -185,12 +204,12 @@ class StarRating {
                 'total' => $total,
                 'votes' => $votes,
                 'rating' => $rating,
-            ), $this->rating_table, 'rid=' . $rid);
+            ), $this->rating_table, 'rid=' . $id);
         } else {
             $rating = $vote;
 
             $this->db->insert(array(
-                'rid' => $rid,
+                'rid' => $id,
                 'total' => $vote,
                 'votes' => $votes,
                 'rating' => $rating,
@@ -199,7 +218,7 @@ class StarRating {
         }
 
         $this->db->insert(array(
-            'rid' => $rid,
+            'rid' => $id,
             'ip' => $this->getClientIp(),
             'vote' => $vote,
             'time' => time()
@@ -207,31 +226,33 @@ class StarRating {
 
         $width = intval(round($total / $votes, 2) * $this->config['width']);
 
-        $tmp = array(
-            'rid' => $rid,
+        $params = array(
+            'id' => $id,
             'width' => $width,
             'total' => $votes,
-            'rating' => $rating
+            'rating' => $rating,
+            'tpl' => base64_encode($this->config['tpl']),
         );
 
-        $tpl = $this->getChunk($this->config['tpl']);
+        $tpl = $this->getChunk($tpl);
 
-        $output = $this->parseTpl($tpl, $tmp);
+        $output = $this->parseTpl($tpl, $params);
 
         return $this->response()
-            ->message('Спасибо за ваш голос! Оценка: ' . $vote)
+            ->message($this->trans('success_voted'))
             ->html($output);
     }
 
     /**
      * Get Rating
      *
-     * @param int $rid Resource ID
+     * @param int $id Resource ID
      *
      * @return array
      */
-    private function getRating($rid = 0) {
-        $query = $this->db->select('*', $this->rating_table, "rid = {$rid}");
+    private function getRating($id) {
+        $query = $this->db->select('*', $this->rating_table, "rid = {$id}");
+
         $data = $this->db->getRow($query);
 
         $width = 0;
@@ -244,16 +265,17 @@ class StarRating {
             $width = intval($rating * $this->config['width']);
         }
 
-        $tmp = array(
-            'rid' => $rid,
+        $params = array(
+            'id' => $id,
             'width' => $width,
             'total' => $total,
-            'rating' => $rating
+            'rating' => $rating,
+            'tpl' => base64_encode($this->config['tpl']),
         );
 
         $tpl = $this->getChunk($this->config['tpl']);
 
-        $output = $this->parseTpl($tpl, $tmp);
+        $output = $this->parseTpl($tpl, $params);
 
         return $output;
     }
@@ -276,30 +298,13 @@ class StarRating {
     }
 
     /**
-     * Parse Template
-     *
-     * @param string $tpl
-     * @param array  $params
-     *
-     * @return mixed
-     */
-    private function parseTpl($tpl = '', $params = array()) {
-        foreach ($params as $n => $v) {
-            $tpl = str_replace('[+' . $n . '+]', $v, $tpl);
-        }
-        $tpl = preg_replace('~\[\[(.*?)\]\]~', '', $tpl);
-
-        return $tpl;
-    }
-
-    /**
      * Check the Resource availability by ID
      *
      * @param int $id
      *
      * @return bool|string
      */
-    private function checkRes($id = 0) {
+    private function isResourceExists($id = 0) {
         $tbl = $this->modx->getFullTableName('site_content');
         $id = intval($id);
 
@@ -307,7 +312,7 @@ class StarRating {
         $total = $this->db->getRow($rs);
 
         if (!intval($total['total'])) {
-            return 'Вы пытаетесь проголосовать за несуществующий материал!';
+            return $this->trans('resource_not_found');
         }
 
         return true;
@@ -323,23 +328,12 @@ class StarRating {
     }
 
     /**
-     * Disable or Enable voting
-     *
-     * @param bool $viewOnly
-     */
-    public function setViewOnly($viewOnly) {
-        $this->viewOnly = (bool) $viewOnly;
-    }
-
-    /**
      * Set Interval in seconds before next vote
      *
      * @param int $interval Seconds
      */
     public function setInterval($interval) {
-        if ($interval) {
-            $this->config['interval'] = (int) $interval;
-        }
+        $this->config['interval'] = (int) $interval;
     }
 
     /**
@@ -373,12 +367,11 @@ class StarRating {
      * @access private
      *
      * @param string $tpl Template file
-     * @param bool   $modxChunk Use modx chunks
      * @param string $postfix Chunk postfix if use file-based chunks
      *
      * @return string Empty
      */
-    private function getChunk($tpl = '', $modxChunk = false, $postfix = '.chunk.tpl') {
+    private function getChunk($tpl = '', $postfix = '.chunk.tpl') {
         if (empty($tpl)) {
             return '';
         }
@@ -387,18 +380,44 @@ class StarRating {
             return $this->chunks[$tpl];
         }
 
-        // Use modx-based chunk
-        if ($modxChunk) {
-            return $this->chunks[$tpl] = $this->modx->getChunk($tpl);
+        if (substr($tpl, 0, 7) == "@CHUNK:") {
+            $tpl = substr($tpl, 7);
+
+            if ($chunk = $this->modx->getChunk($tpl)) {
+                $this->chunks[$tpl] = $chunk;
+
+                return $chunk;
+            }
+        }
+
+        if (!preg_match('/^[a-z]+$/i', $tpl)) {
+            $tpl = 'template';
         }
 
         // Use file-based chunk
-        $f = $this->config['chunksDir'] . strtolower($tpl) . $postfix;
-        if (file_exists($f)) {
-            return $this->chunks[$tpl] = file_get_contents($f);
+        $file = $this->config['chunksDir'] . strtolower($tpl) . $postfix;
+        if (file_exists($file)) {
+            return $this->chunks[$tpl] = file_get_contents($file);
         }
 
         return '';
+    }
+
+    /**
+     * Parse Template
+     *
+     * @param string $tpl
+     * @param array  $params
+     *
+     * @return mixed
+     */
+    private function parseTpl($tpl = '', $params = array()) {
+        foreach ($params as $n => $v) {
+            $tpl = str_replace('[+' . $n . '+]', $v, $tpl);
+        }
+        $tpl = preg_replace('~\[\+(.*?)\+\]~', '', $tpl);
+
+        return $tpl;
     }
 
     /**
@@ -419,7 +438,9 @@ class StarRating {
     }
 
     public function isInstalled() {
-        $q = $this->db->query("SHOW TABLES LIKE 'modx_star_%'");
+        $prefix = $this->db->config['table_prefix'];
+
+        $q = $this->db->query("SHOW TABLES LIKE '{$prefix}star_%'");
 
         return $this->db->getRecordCount($q) == 2;
     }
