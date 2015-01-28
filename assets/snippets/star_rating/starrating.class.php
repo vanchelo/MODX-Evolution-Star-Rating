@@ -65,13 +65,18 @@ class StarRating {
     }
 
     public function setConfigFromSnippet(array & $config) {
+        if (!empty($config['class'])) {
+            $config['class'] = ' ' . trim($config['class']);
+        }
+
         $this->config = array_merge(array(
             'lang' => 'ru',
-            'width' => 16, // Star width in pixels
             'tpl' => 'template', // Name of template file chunk
             'interval' => 24 * 60 * 60, // The interval between votings in seconds
             'noJs' => false,
             'noCss' => false,
+            'class' => '',
+            'stars' => 5,
         ), $config);
     }
 
@@ -94,7 +99,8 @@ class StarRating {
             'moduleUrl' => MODX_BASE_URL . 'assets/snippets/star_rating/module/',
             'viewsDir' => __DIR__ . '/views/',
             'connectorUrl' => '/assets/snippets/star_rating/module/connector.php',
-            'chunksDir' => __DIR__ . '/chunks/'
+            'chunksDir' => __DIR__ . '/chunks/',
+            'idRequestKey' => 'rid',
         ));
     }
 
@@ -102,31 +108,47 @@ class StarRating {
      * @return StarRatingResponse
      */
     public function process() {
-        if (!$this->config['noJs'] && !$this->scriptsLoaded()) {
-            $this->modx->regClientHTMLBlock('<script>window.jQuery || document.write(\'<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">\x3C/script>\');</script>');
-            $this->modx->regClientHTMLBlock('<script src="' . $this->config['assetsUrl'] . 'js/script.js"></script>');
-            $this->scriptsLoaded(true);
+        if ($this->ajax()) {
+            return $this->processAjax();
         }
 
-        if (!$this->config['noCss']) {
-            $this->modx->regClientStartupHTMLBlock('<link rel="stylesheet" href="' . $this->config['assetsUrl'] . 'css/style.css"/>');
-        }
+        $this->loadScripts();
+        $this->loadStyles();
 
-        $output = $this->getRating($this->config['id']);
+        $output = $this->renderRating($this->config['id']);
 
         return $output;
     }
 
-    public function scriptsLoaded($loaded = false) {
-        if (!$loaded) return self::$scriptsLoaded;
+    private function processAjax() {
+        $id = isset($_GET[$this->getConfig('idRequestKey')])
+            ? $_GET[$this->getConfig('idRequestKey')]
+            : null;
 
-        self::$scriptsLoaded = (bool) $loaded;
+        if ($this->config['id'] != $id) return null;
+
+        $response = $this->vote(
+            $id,
+            isset($_GET['vote']) ? $_GET['vote'] : null
+        );
+
+        return $response->display();
     }
 
-    public function vote($id, $vote, $tpl) {
+    public function isScriptsLoaded()
+    {
+        return self::$scriptsLoaded;
+    }
+
+    /**
+     * @param int $id
+     * @param int $vote
+     *
+     * @return array|bool|StarRatingResponse
+     */
+    public function vote($id, $vote) {
         $id = (int) $id;
         $vote = (int) $vote;
-        $tpl = base64_decode($tpl);
 
         if (!$vote || !$id) {
             return $this->response()->error($this->trans('something_went_wrong'));
@@ -135,10 +157,10 @@ class StarRating {
         $checkVote = $this->checkVote($id);
 
         if ($checkVote !== true) {
-            return $this->response()->error($checkVote);
+            return $this->response()->error('Вы уже голосовали');
         }
 
-        return $this->setVote($vote, $id, $tpl);
+        return $this->setVote($vote, $id);
     }
 
     /**
@@ -150,62 +172,49 @@ class StarRating {
      */
     private function checkVote($id = 0) {
         $id = (int) $id;
-        if ($id == 0) {
-            return 'Не указан ID';
-        }
+        if (!$id) return false;
+
+        if ($this->getConfig('readOnly')) return false;
 
         $ip = $this->getClientIp();
-        if ($ip === false) {
-            return 'Возможность голосования для вас закрыта!';
-        }
+        if ($ip === false) return false;
 
         $checkRes = $this->isResourceExists($id);
 
-        if ($checkRes !== true) {
-            return $checkRes;
-        }
+        if (!$checkRes) return false;
 
         $time = time() - $this->config['interval'];
         $query = $this->db->select('*', $this->votes_table, "ip = '{$ip}' AND  rid = {$id} AND time > {$time}");
-        if ($this->db->getRecordCount($query)) {
-            return $this->trans('already_voted');
-        }
 
-        return true;
+        return $this->db->getRecordCount($query) > 0 ? false : true;
     }
 
     /**
      * Set Vote
      *
-     * @param int    $vote Vote
-     * @param int    $id Resource ID
-     * @param string $tpl Template
+     * @param int $vote Vote
+     * @param int $id Resource ID
      *
      * @return array|bool
      */
-    private function setVote($vote = 0, $id = 0, $tpl = '') {
+    private function setVote($vote, $id) {
         $vote = (int) $vote;
         $id = (int) $id;
-        if ($vote == 0 || $id == 0 || $vote > 5) {
+        if (!$vote || !$id || $vote > $this->config['stars']) {
             return false;
         }
 
-        $votes = 1;
-
-        $query = $this->db->select('*', $this->rating_table, "rid = {$id}");
-        $data = $this->db->getRow($query);
+        $data = $this->getRating($id);
 
         if ($data) {
             $total = $data['total'] + $vote;
             $votes = $data['votes'] + 1;
             $rating = !empty($total) ? round($total / $votes, 2) : $vote;
 
-            $this->db->update(array(
-                'total' => $total,
-                'votes' => $votes,
-                'rating' => $rating,
-            ), $this->rating_table, 'rid=' . $id);
+            $this->db->update(compact('total', 'votes', 'rating'), $this->rating_table, 'rid=' . $id);
         } else {
+            $total = $vote;
+            $votes = 1;
             $rating = $vote;
 
             $this->db->insert(array(
@@ -214,68 +223,60 @@ class StarRating {
                 'votes' => $votes,
                 'rating' => $rating,
             ), $this->rating_table);
-            $total = $vote;
         }
 
+        $this->insertVote($id, $vote);
+
+        return $this->response()
+            ->message($this->trans('success_voted'))
+            ->data(compact('id', 'total', 'rating', 'votes'));
+    }
+
+    private function insertVote($id, $vote) {
         $this->db->insert(array(
             'rid' => $id,
             'ip' => $this->getClientIp(),
             'vote' => $vote,
             'time' => time()
         ), $this->votes_table);
+    }
 
-        $width = intval(round($total / $votes, 2) * $this->config['width']);
+    public function getRating($id) {
+        $query = $this->db->select('*', $this->rating_table, "rid = {$id}");
 
-        $params = array(
-            'id' => $id,
-            'width' => $width,
-            'total' => $votes,
-            'rating' => $rating,
-            'tpl' => base64_encode($this->config['tpl']),
-        );
+        $data = $this->db->getRow($query);
 
-        $tpl = $this->getChunk($tpl);
-
-        $output = $this->parseTpl($tpl, $params);
-
-        return $this->response()
-            ->message($this->trans('success_voted'))
-            ->html($output);
+        return $data ?: null;
     }
 
     /**
-     * Get Rating
+     * Render rating
      *
      * @param int $id Resource ID
      *
      * @return array
      */
-    private function getRating($id) {
-        $query = $this->db->select('*', $this->rating_table, "rid = {$id}");
+    private function renderRating($id) {
+        $data = $this->getRating($id);
 
-        $data = $this->db->getRow($query);
-
-        $width = 0;
-        $total = 0;
-        $rating = 0;
-
-        if ($data) {
-            $total = $data['votes'];
-            $rating = round($data['total'] / $data['votes'], 2);
-            $width = intval($rating * $this->config['width']);
-        }
+        $votes = $data ? $data['votes'] : 0;
+        $rating = $data ? round($data['total'] / $data['votes'], 2) : 0;
 
         $params = array(
             'id' => $id,
-            'width' => $width,
-            'total' => $total,
+            'votes' => $votes,
             'rating' => $rating,
-            'tpl' => base64_encode($this->config['tpl']),
+            'class' => $this->config['class'],
+            'stars' => $this->config['stars'],
+            'starOn' => $this->config['starOn'],
+            'starOff' => $this->config['starOff'],
+            'starHalf' => $this->config['starHalf'],
+            'imagesPath' => $this->config['imagesPath'],
+            'starType' => $this->config['starType'],
+            'readOnly' => (int) $this->config['readOnly'] || (int) !$this->checkVote($id),
         );
 
-        $tpl = $this->getChunk($this->config['tpl']);
-
-        $output = $this->parseTpl($tpl, $params);
+        $output = $this->parseChunk($this->config['tpl'], $params);
 
         return $output;
     }
@@ -304,27 +305,14 @@ class StarRating {
      *
      * @return bool|string
      */
-    private function isResourceExists($id = 0) {
+    private function isResourceExists($id) {
         $tbl = $this->modx->getFullTableName('site_content');
-        $id = intval($id);
+        $id = (int) $id;
 
-        $rs = $this->db->query("SELECT COUNT(*) as total FROM {$tbl} WHERE id={$id} AND published=1 AND deleted=0");
+        $rs = $this->db->query("SELECT COUNT(*) as total FROM {$tbl} WHERE id={$id} AND published=1 AND deleted=0 LIMIT 1");
         $total = $this->db->getRow($rs);
 
-        if (!intval($total['total'])) {
-            return $this->trans('resource_not_found');
-        }
-
-        return true;
-    }
-
-    /**
-     * Star width
-     *
-     * @param int $width width in pixels
-     */
-    public function setWidth($width) {
-        $this->config['width'] = (int) $width;
+        return $total && (int) $total['total'];
     }
 
     /**
@@ -418,6 +406,20 @@ class StarRating {
         $tpl = preg_replace('~\[\+(.*?)\+\]~', '', $tpl);
 
         return $tpl;
+    }
+
+    /**
+     * Get and parse chunk
+     *
+     * @param string $tpl
+     * @param array $params
+     *
+     * @return string
+     */
+    private function parseChunk($tpl, $params = array()) {
+        $tpl = $this->getChunk($tpl);
+
+        return $this->parseTpl($tpl, $params);
     }
 
     /**
@@ -525,18 +527,14 @@ class StarRating {
      */
     public function view($tpl = null, $data = array()) {
         static $view;
-        if (!isset($view)) {
+        if (!$view) {
             require_once 'starratingview.class.php';
             $view = new StarRatingView($this->config['viewsDir']);
             $view->share('app', $this);
             $view->share('modx', $this->modx);
         }
 
-        if ($tpl !== null) {
-            return $view->fetchPartial($tpl, $data);
-        }
-
-        return $view;
+        return is_null($view) ? $view : $view->fetch($tpl, $data);
     }
 
     /**
@@ -578,4 +576,18 @@ class StarRating {
         return isset($this->config[$key]) ? $this->config[$key] : $default;
     }
 
+    private function loadScripts() {
+        if (!$this->config['noJs'] && !$this->isScriptsLoaded()) {
+            $this->modx->regClientHTMLBlock('<script>window.jQuery || document.write(\'<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">\x3C/script>\');</script>');
+            $this->modx->regClientHTMLBlock('<script src="' . $this->config['assetsUrl'] . 'js/scripts.min.js"></script>');
+
+            self::$scriptsLoaded = true;
+        }
+    }
+
+    private function loadStyles() {
+        if (!$this->config['noCss']) {
+            $this->modx->regClientStartupHTMLBlock('<link rel="stylesheet" href="' . $this->config['assetsUrl'] . 'css/styles.min.css"/>');
+        }
+    }
 }

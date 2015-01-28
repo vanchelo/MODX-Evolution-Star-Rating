@@ -63,7 +63,7 @@
             <th style="width:280px;text-align:center" ng-click="change('longtitle')">Название<i
                     ng-class="getSortDir('longtitle')"></i></th>
             <th style="width:40px;text-align:center" ng-click="change('rating')">Рейтинг<i ng-class="getSortDir('rating')"></i></th>
-            <th style="width:40px;text-align:center" ng-click="change('total')">Сумма&nbsp;оценок<i ng-class="getSortDir('total')"></i></th>
+            <th style="width:40px;text-align:center" ng-click="change('total')">Сумма оценок<i ng-class="getSortDir('total')"></i></th>
             <th style="width:40px;text-align:center" ng-click="change('votes')">Голоса<i ng-class="getSortDir('votes')"></i></th>
             <th style="width:100px"></th>
         </tr>

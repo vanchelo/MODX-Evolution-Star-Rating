@@ -122,6 +122,7 @@ class StarRatingResponse {
         $output = $this->toJson();
 
         if ($echo) {
+            ob_end_clean();
             header('Content-Type: application/json; charset=UTF-8');
             echo $output;
             exit();

@@ -24,7 +24,7 @@ class StarRatingView {
      *
      * @return string
      */
-    public function fetchPartial($template, $data = array()) {
+    public function fetch($template, $data = array()) {
         try {
             ob_start();
             if ($data)
@@ -41,36 +41,6 @@ class StarRatingView {
 
     /**
      * Вывести отренедеренный шаблон с параметрами
-     *
-     * @param  string $template
-     * @param  array  $data
-     *
-     * @return void
-     */
-    public function renderPartial($template, $data = array()) {
-        echo $this->fetchPartial($template, $data);
-    }
-
-    /**
-     * Получить отренедеренный в переменную $content layout-а
-     * Шаблон с параметрами $data
-     *
-     * @param  string $template
-     * @param  array  $data
-     *
-     * @return string
-     */
-    public function fetch($template, $data = array()) {
-        $content = $this->fetchPartial($template, $data);
-
-        return $this->fetchPartial('layout', array(
-            'content' => $content
-        ));
-    }
-
-    /**
-     * Вывести отренедеренный в переменную $content layout-а
-     * Шаблон с параметрами $data
      *
      * @param  string $template
      * @param  array  $data

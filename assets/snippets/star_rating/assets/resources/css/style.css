@@ -2,79 +2,22 @@
     position: relative;
 }
 .star-rating {
-    background: url('../img/stars.png') repeat-x scroll left top transparent;
     display: inline-block;
-    height: 16px;
-    list-style: none outside none;
-    margin: 0 !important;
-    padding: 0 !important;
-    position: relative;
-    top: 3px;
-    width: 80px;
 }
-.star-rating li.current-rating {
-    background: url('../img/stars.png') repeat scroll left center transparent;
-    display: block;
-    height: 16px;
-    position: absolute;
-    text-indent: -9000px;
-    z-index: 1;
+.star-rating-info {
+    display: inline-block;
 }
-.star-rating li {
-    text-indent: -9000px;
+.star-rating span, .star-rating img {
+    margin-right: 2px;
 }
-.star-rating li {
-    float: left;
-    margin: 0;
-    padding: 0;
+.star-rating-container.pink .star-on-png {
+    color: #FF00B5;
 }
-.star-rating li a {
-    border: 0 none;
-    display: block;
-    height: 16px;
-    outline: medium none;
-    overflow: hidden;
-    padding: 0;
-    position: absolute;
-    text-decoration: none;
-    text-indent: -9000px;
-    width: 16px;
-    z-index: 20;
+.star-rating-container.pink .star-off-png {
+    color: #ddd;
 }
-.star-rating a.one-star, .star-rating li.one-star {
-    left: 0;
-}
-.star-rating a.two-stars, .star-rating li.two-stars {
-    left: 16px;
-}
-.star-rating a.three-stars, .star-rating li.three-stars {
-    left: 32px;
-}
-.star-rating a.four-stars, .star-rating li.four-stars {
-    left: 48px;
-}
-.star-rating a.five-stars, .star-rating li.five-stars {
-    left: 64px;
-}
-.star-rating li a:hover {
-    background: url('../img/stars.png') repeat scroll left bottom transparent;
-    left: 0;
-    z-index: 2;
-}
-.star-rating a.one-stars:hover {
-    width: 16px;
-}
-.star-rating a.two-stars:hover {
-    width: 32px;
-}
-.star-rating a.three-stars:hover {
-    width: 48px;
-}
-.star-rating a.four-stars:hover {
-    width: 64px;
-}
-.star-rating a.five-stars:hover {
-    width: 80px;
+.star-rating-container.pink .star-half-png {
+    color: #FF00B5;
 }
 .mask {
     background-color: rgba(20, 20, 20, 0.2);
