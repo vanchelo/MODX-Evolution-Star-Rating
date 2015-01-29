@@ -534,7 +534,7 @@ class StarRating {
             $view->share('modx', $this->modx);
         }
 
-        return is_null($view) ? $view : $view->fetch($tpl, $data);
+        return is_null($tpl) ? $view : $view->fetch($tpl, $data);
     }
 
     /**
