@@ -25,7 +25,7 @@ if (!empty($_REQUEST['query']) && is_string($_REQUEST['query'])) {
     ));
 }
 
-if (!empty($_REQUEST['id']) && is_numeric($_REQUEST['id'])) {
+if (!empty($_REQUEST['id']) && ctype_digit($_REQUEST['id'])) {
     $q->where_like('sc.id', (int) $_REQUEST['id']);
 }
 
@@ -37,8 +37,8 @@ if (!empty($_REQUEST['order']) && is_string($_REQUEST['order'])) {
     $order = $this->app->e($_REQUEST['order']);
 }
 
-if (!empty($_REQUEST['limit']) && is_numeric($_REQUEST['limit'])) {
-    $limit = intval($_REQUEST['limit']);
+if (!empty($_REQUEST['limit']) && ctype_digit($_REQUEST['limit'])) {
+    $limit = (int) $_REQUEST['limit'];
 }
 
 $q->select_many(array('r.*'));
