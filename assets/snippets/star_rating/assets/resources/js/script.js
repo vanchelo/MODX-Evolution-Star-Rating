@@ -28,8 +28,8 @@ $(document).ready(function () {
                         } else {
                             rating.raty('reload');
                         }
-                        container.append('<div class="msg">' + data.message + '</div>');
-                        container.find('.mask').fadeOut(100, function () {
+                        rating.append('<div class="msg">' + data.message + '</div>');
+                        rating.find('.mask').fadeOut(100, function () {
                             $(this).remove();
                         });
                         setTimeout(function () {
@@ -40,7 +40,7 @@ $(document).ready(function () {
                     }
                 },
                 beforeSend: function () {
-                    container.append('<div class="mask" />');
+                    rating.append('<div class="mask" />');
                 }
             })
         }

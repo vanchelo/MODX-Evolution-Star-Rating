@@ -3,6 +3,7 @@
 }
 .star-rating {
     display: inline-block;
+    position: relative;
 }
 .star-rating-info {
     display: inline-block;
