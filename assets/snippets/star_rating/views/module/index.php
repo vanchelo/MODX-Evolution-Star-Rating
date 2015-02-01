@@ -1,13 +1,14 @@
 <?php defined('MODX_BASE_PATH') or die('Error'); ?>
 <?php /** @var StarRating $app */ ?>
 <!doctype html>
-<html lang="en" ng-app>
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
     <title><?= $app->trans('star_rating') ?></title>
     <link rel="stylesheet" href="<?= $app->getConfig('moduleUrl') ?>css/app.css"/>
     <link rel="stylesheet" href="<?= $app->getConfig('moduleUrl') ?>css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="<?= $app->getConfig('moduleUrl') ?>libs/ngtoast/ngToast.min.css"/>
     <style>
         body { padding: 10px 0; }
         .table th { cursor: pointer; }
@@ -17,14 +18,14 @@
     <!-- Scripts -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="<?= $app->getConfig('moduleUrl') ?>js/bootstrap.min.js"></script>
-    <script src="<?= $app->getConfig('moduleUrl') ?>libs/angular/angular.js"></script>
-    <script src="<?= $app->getConfig('moduleUrl') ?>js/controllers.js"></script>
+    <script src="<?= $app->getConfig('moduleUrl') ?>libs/angular/angular.min.js"></script>
+    <script src="<?= $app->getConfig('moduleUrl') ?>js/app.js"></script>
     <!-- Scripts -->
 </head>
 
-<body ng-controller="ResourcesList" ng-cloak>
-
-<div class="container">
+<body ng-app="Rating">
+<toast></toast>
+<div class="container" ng-controller="RatingController">
     <div class="row">
         <div class="col-md-8">
             <h3 style="margin: 0"><?= $app->trans('star_rating') ?></h3>
