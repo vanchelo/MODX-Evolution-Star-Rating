@@ -1,4 +1,4 @@
-$(document).ready(function () {
+jQuery(document).ready(function ($) {
     $('.star-rating').raty({
         path: function() { return this.dataset.path || '/assets/snippets/star_rating/assets/img/' },
         starOn: function() { return this.dataset.on || 'star-on.png' },
