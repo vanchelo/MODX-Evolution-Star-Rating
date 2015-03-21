@@ -259,12 +259,10 @@ class StarRating {
     private function renderRating($id) {
         $data = $this->getRating($id);
 
-        if (!$data) return '';
-
         $params = array(
             'id' => $id,
-            'votes' => $data['votes'],
-            'rating' => $data['rating'],
+            'votes' => isset($data['votes']) ? $data['votes'] : 0,
+            'rating' => isset($data['rating']) ? $data['rating'] : 0,
             'class' => $this->config['class'],
             'stars' => $this->config['stars'],
             'starOn' => $this->config['starOn'],
