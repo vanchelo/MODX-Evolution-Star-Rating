@@ -5,9 +5,9 @@ $limit = 100;
 $order = 'id';
 $results = array();
 $table = $this->dbConfig['table_prefix'] . 'site_content';
-$rating_table = $this->dbConfig['table_prefix'] . 'star_rating';
+$ratingTable = $this->dbConfig['table_prefix'] . 'star_rating';
 
-$order_dir = !empty($_REQUEST['orderDir']) ? (string) $_REQUEST['orderDir'] : 'ASC';
+$orderDir = !empty($_REQUEST['orderDir']) ? (string) $_REQUEST['orderDir'] : 'ASC';
 
 $q = ORM::for_table($table);
 $q->table_alias('sc');
@@ -29,7 +29,7 @@ if (!empty($_REQUEST['id']) && ctype_digit($_REQUEST['id'])) {
     $q->where_like('sc.id', (int) $_REQUEST['id']);
 }
 
-$q->inner_join($rating_table, 'sc.id = r.rid', 'r');
+$q->inner_join($ratingTable, 'sc.id = r.rid', 'r');
 
 $total = $q->count('sc.id');
 
@@ -49,7 +49,7 @@ $q->select_many(array(
     'sc.longtitle',
 ));
 
-switch ($order_dir) {
+switch ($orderDir) {
     case 'DESC':
         $q->order_by_desc($order);
         break;

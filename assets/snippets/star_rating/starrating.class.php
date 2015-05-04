@@ -9,12 +9,12 @@ class StarRating {
     /**
      * @var string Rating main table
      */
-    public $rating_table;
+    public $ratingTable;
 
     /**
      * @var string Rating votes table
      */
-    public $votes_table;
+    public $votesTable;
 
     /**
      * @var DocumentParser A reference to the DocumentParser object
@@ -56,8 +56,8 @@ class StarRating {
         $this->modx =& $modx;
         $this->db =& $modx->db;
 
-        $this->rating_table = $this->modx->getFullTableName('star_rating');
-        $this->votes_table = $this->modx->getFullTableName('star_rating_votes');
+        $this->ratingTable = $this->modx->getFullTableName('star_rating');
+        $this->votesTable = $this->modx->getFullTableName('star_rating_votes');
 
         $this->setConfigFromSnippet($config);
 
@@ -171,20 +171,18 @@ class StarRating {
      * @return bool|string
      */
     private function checkVote($id = 0) {
-        $id = (int) $id;
-        if (!$id) return false;
+        if (!$id = (int) $id) return false;
 
         if ($this->getConfig('readOnly')) return false;
 
-        $ip = $this->getClientIp();
-        if ($ip === false) return false;
+        if (!$ip = $this->getClientIp()) return false;
 
         $checkRes = $this->isResourceExists($id);
 
         if (!$checkRes) return false;
 
         $time = time() - $this->config['interval'];
-        $query = $this->db->select('*', $this->votes_table, "ip = '{$ip}' AND  rid = {$id} AND time > {$time}");
+        $query = $this->db->select('*', $this->votesTable, "ip = '{$ip}' AND rid = {$id} AND time > {$time}");
 
         return $this->db->getRecordCount($query) > 0 ? false : true;
     }
@@ -200,6 +198,7 @@ class StarRating {
     private function setVote($vote, $id) {
         $vote = (int) $vote;
         $id = (int) $id;
+
         if (!$vote || !$id || $vote > $this->config['stars']) {
             return false;
         }
@@ -211,7 +210,7 @@ class StarRating {
             $votes = $data['votes'] + 1;
             $rating = $total ? round($total / $votes, 2) : $vote;
 
-            $this->db->update(compact('total', 'votes', 'rating'), $this->rating_table, 'rid=' . $id);
+            $this->db->update(compact('total', 'votes', 'rating'), $this->ratingTable, 'rid=' . $id);
         } else {
             $total = $vote;
             $votes = 1;
@@ -222,7 +221,7 @@ class StarRating {
                 'total' => $vote,
                 'votes' => $votes,
                 'rating' => $rating,
-            ), $this->rating_table);
+            ), $this->ratingTable);
         }
 
         $this->insertVote($id, $vote);
@@ -232,17 +231,30 @@ class StarRating {
             ->data(compact('id', 'total', 'rating', 'votes'));
     }
 
+    /**
+     * Insert vote to DB
+     *
+     * @param int $id Resource ID
+     * @param int $vote
+     */
     private function insertVote($id, $vote) {
         $this->db->insert(array(
             'rid' => $id,
             'ip' => $this->getClientIp(),
             'vote' => $vote,
             'time' => time()
-        ), $this->votes_table);
+        ), $this->votesTable);
     }
 
+    /**
+     * Get rating by ID
+     *
+     * @param int $id Resource ID
+     *
+     * @return array|null
+     */
     public function getRating($id) {
-        $query = $this->db->select('*', $this->rating_table, "rid = {$id}");
+        $query = $this->db->select('*', $this->ratingTable, "rid = {$id}");
 
         $data = $this->db->getRow($query);
 
@@ -298,7 +310,7 @@ class StarRating {
     /**
      * Check the Resource availability by ID
      *
-     * @param int $id
+     * @param int $id Resource ID
      *
      * @return bool|string
      */
@@ -322,6 +334,8 @@ class StarRating {
     }
 
     /**
+     * Set ratign template
+     *
      * @param string $tpl
      */
     public function setTemplate($tpl = '') {
@@ -331,6 +345,8 @@ class StarRating {
     }
 
     /**
+     * Set rating language
+     *
      * @param string $lang
      */
     public function setLang($lang) {
@@ -436,6 +452,11 @@ class StarRating {
         return $response;
     }
 
+    /**
+     * Check is module installed
+     *
+     * @return bool
+     */
     public function isInstalled() {
         $prefix = $this->db->config['table_prefix'];
 
@@ -444,6 +465,11 @@ class StarRating {
         return $this->db->getRecordCount($q) == 2;
     }
 
+    /**
+     * Module installation
+     *
+     * @return bool|string
+     */
     public function install() {
         if ($this->isInstalled())
             return false;
@@ -544,7 +570,7 @@ class StarRating {
     }
 
     /**
-     * Проверяет AJAX запрос или нет
+     * Return true if request if AJAX
      *
      * @return bool
      */

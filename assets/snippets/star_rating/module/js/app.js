@@ -29,6 +29,8 @@
         $scope.type = '';
         $scope.revers = false;
 
+        $scope.getData();
+
         $scope.change = function (order) {
             $scope.params = {
                 limit: $scope.limit = parseInt($scope.limit, 10) || 10
@@ -97,7 +99,22 @@
                 });
         };
 
-        $scope.getData();
+        $scope.fullReset = function () {
+            if (!confirm('Обнулить все рейтинги?')) {
+                return false;
+            }
+
+            $http({
+                url: $scope.connector,
+                method: 'get',
+                headers: {action: 'full-reset'}
+            }).
+                success(function (data) {
+                    if (data.success == true) {
+                        $scope.change();
+                    }
+                });
+        };
     })
 })(angular);
 

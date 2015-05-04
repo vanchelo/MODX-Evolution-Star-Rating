@@ -52,7 +52,11 @@
             <label for="resId">ID ресурса</label>
             <input style="width: 80px" type="text" class="form-control text-center" id="resId" ng-model="id" ng-change="change()">
         </div>
-            <button class="btn btn-default pull-right" ng-click="change()">Обновить</button>
+
+        <div class="group pull-right">
+            <button class="btn btn-default" ng-click="change()">Обновить</button>
+            <button class="btn btn-warning" ng-click="fullReset()">Полный сброс</button>
+        </div>
     </form>
 
     <hr/>

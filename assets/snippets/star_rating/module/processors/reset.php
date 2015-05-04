@@ -6,10 +6,10 @@ if (empty($properties['id']) || !intval($properties['id'])) {
 
 $id = (int) $properties['id'];
 
-$rating_table = $this->modx->getFullTableName('star_rating');
-$votes_table = $this->modx->getFullTableName('star_rating_votes');
+$ratingTable = $this->modx->getFullTableName('star_rating');
+$votesTable = $this->modx->getFullTableName('star_rating_votes');
 
-$this->db->delete($rating_table, "rid = {$id}");
-$this->db->delete($votes_table, "rid = {$id}");
+$this->db->delete($ratingTable, "rid = {$id}");
+$this->db->delete($votesTable, "rid = {$id}");
 
 return $this->response->message('Данные рейтинга обнулены');

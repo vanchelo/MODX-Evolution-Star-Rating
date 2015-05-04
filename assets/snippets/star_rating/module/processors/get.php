@@ -7,8 +7,8 @@ if (empty($properties['id']) || !intval($properties['id'])) {
 $id = (int) $properties['id'];
 
 $table = $this->dbConfig['table_prefix'] . 'site_content';
-$rating_table = $this->dbConfig['table_prefix'] . 'star_rating';
-$votes_table = $this->dbConfig['table_prefix'] . 'star_rating_votes';
+$ratingTable = $this->dbConfig['table_prefix'] . 'star_rating';
+$votesTable = $this->dbConfig['table_prefix'] . 'star_rating_votes';
 
 $resource = ORM::for_table($table)->select_many(array(
     'id',
@@ -22,7 +22,7 @@ if (!$resource) {
 
 $resource = $resource->as_array();
 
-$votes = ORM::for_table($votes_table)
+$votes = ORM::for_table($votesTable)
     ->select_many(array(
         'id',
         'vote',
