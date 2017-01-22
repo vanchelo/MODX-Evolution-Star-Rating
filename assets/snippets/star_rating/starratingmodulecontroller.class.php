@@ -10,7 +10,7 @@ class StarRatingModuleController {
      */
     protected $response;
 
-    function __construct(StarRating $app) {
+    public function __construct(StarRating $app) {
         $this->app = $app;
         $app->view()->share('id', isset($_GET['id']) ? (int) $_GET['id'] : 0);
     }
@@ -41,7 +41,8 @@ class StarRatingModuleController {
      * @return null
      */
     public function run($action) {
-        $action = $action . 'Action';
+        $action .= 'Action';
+
         if (!method_exists($this, $action)) {
             return null;
         }

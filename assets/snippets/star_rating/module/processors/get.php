@@ -27,7 +27,7 @@ $votes = ORM::for_table($votesTable)
         'id',
         'vote',
         'ip',
-        'time'
+        'time',
     ))
     ->where_equal('rid', $id)
     ->find_array();
@@ -43,5 +43,5 @@ if (!empty($votes)) {
 }
 
 return $this->response->data(array(
-    'data' => $resource
+    'data' => $resource,
 ));

@@ -49,13 +49,10 @@ $q->select_many(array(
     'sc.longtitle',
 ));
 
-switch ($orderDir) {
-    case 'DESC':
-        $q->order_by_desc($order);
-        break;
-    default:
-        $q->order_by_asc($order);
-        break;
+if ($orderDir === 'DESC') {
+    $q->order_by_desc($order);
+} else {
+    $q->order_by_asc($order);
 }
 
 $q->limit($limit);
@@ -66,5 +63,5 @@ if ($total > 0) {
 
 return $this->response->data(array(
     'data' => $results,
-    'total' => $total
+    'total' => $total,
 ));

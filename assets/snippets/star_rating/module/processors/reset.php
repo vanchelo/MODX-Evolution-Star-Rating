@@ -1,6 +1,6 @@
 <?php
 
-if (empty($properties['id']) || !intval($properties['id'])) {
+if (!isset($properties['id']) || !(int) $properties['id']) {
     return $this->response->error('Не указан ID ресурса');
 }
 

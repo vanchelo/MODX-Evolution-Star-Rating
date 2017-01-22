@@ -1,10 +1,11 @@
 <?php
 
-class StarRatingView {
+class StarRatingView
+{
     protected $viewsPath;
     protected $data = array();
 
-    function __construct($path = null) {
+    public function __construct($path = null) {
         if (!$path) {
             throw new InvalidArgumentException('Views path is not defined');
         }
@@ -27,10 +28,14 @@ class StarRatingView {
     public function fetch($template, $data = array()) {
         try {
             ob_start();
-            if ($data)
+            if ($data) {
                 extract($data);
-            if ($this->data)
+            }
+
+            if ($this->data) {
                 extract($this->data);
+            }
+
             include $this->preparePath($template);
 
             return ob_get_clean();

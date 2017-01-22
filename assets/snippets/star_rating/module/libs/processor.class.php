@@ -5,38 +5,38 @@
  *
  * @package Grid
  */
-class Processor {
+class Processor
+{
     /**
      * The absolute path to this processor
+     *
      * @var string $action
      */
     public $action;
     /**
      * A reference to the Database config
+     *
      * @var array $db
      */
     public $db;
     /**
      * The array of properties being passed to this processor
+     *
      * @var array $properties
      */
     public $properties = array();
-
     /**
      * @var StarRatingResponse
      */
     public $response;
-
     /**
      * @var StarRating
      */
     public $app;
-
     /**
      * @var DocumentParser
      */
     public $modx;
-
     /**
      * @var array
      */
@@ -45,11 +45,12 @@ class Processor {
     /**
      * Creates a Processor object.
      *
-     * @param StarRating     $app A reference to the StarRating instance
-     * @param string         $action Processor action
-     * @param array          $properties An array of properties
+     * @param StarRating $app A reference to the StarRating instance
+     * @param string $action Processor action
+     * @param array $properties An array of properties
      */
-    function __construct(StarRating & $app, $action = 'list', array $properties = array()) {
+    public function __construct(StarRating $app, $action = 'list', array $properties = array())
+    {
         $this->app =& $app;
         $this->response = $app->response();
         $this->modx =& $app->getModx();
@@ -61,16 +62,18 @@ class Processor {
 
     /**
      * Run the processor
+     *
      * @return string
      */
-    public function run() {
-        $o = $this->process();
+    public function run()
+    {
+        $output = $this->process();
 
-        if ($o instanceof StarRatingResponse) {
-            return $o->display(false);
+        if ($output instanceof StarRatingResponse) {
+            return $output->display(false);
         }
 
-        return json_encode($o);
+        return json_encode($output);
     }
 
     /**
@@ -78,18 +81,19 @@ class Processor {
      *
      * @return mixed
      */
-    public function process() {
+    public function process()
+    {
         $modx =& $this->modx;
         $properties = $this->getProperties();
         $processor = $this->action . '.php';
 
         if (!file_exists($processor)) {
-            return $this->response->error('Процессор не найден');
+            return $this->response->error('Action does not exist.');
         }
 
-        $o = include $processor;
+        $output = include $processor;
 
-        return $o;
+        return $output;
     }
 
     /**
@@ -97,8 +101,9 @@ class Processor {
      *
      * @param string $action The absolute path
      */
-    public function setAction($action) {
-        $this->action = preg_replace('/[^a-z]+/si', '', $action);
+    public function setAction($action)
+    {
+        $this->action = preg_replace('/[^a-z]+/i', '', $action);
     }
 
     /**
@@ -106,7 +111,8 @@ class Processor {
      *
      * @return array
      */
-    public function getProperties() {
+    public function getProperties()
+    {
         return $this->properties;
     }
 
@@ -114,11 +120,12 @@ class Processor {
      * Get a specific property.
      *
      * @param string $k
-     * @param mixed  $default
+     * @param mixed $default
      *
      * @return mixed
      */
-    public function getProperty($k, $default = null) {
+    public function getProperty($k, $default = null)
+    {
         return array_key_exists($k, $this->properties) ? $this->properties[$k] : $default;
     }
 
@@ -126,9 +133,10 @@ class Processor {
      * Set a property value
      *
      * @param string $k
-     * @param mixed  $v
+     * @param mixed $v
      */
-    public function setProperty($k, $v) {
+    public function setProperty($k, $v)
+    {
         $this->properties[$k] = $v;
     }
 
@@ -139,9 +147,9 @@ class Processor {
      *
      * @return void
      */
-    public function setProperties($properties) {
+    public function setProperties($properties)
+    {
         unset($properties['action']);
         $this->properties = array_merge($this->properties, $properties);
     }
-
 }

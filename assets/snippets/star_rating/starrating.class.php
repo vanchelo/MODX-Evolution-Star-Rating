@@ -5,56 +5,51 @@
  *
  * @author vanchelo <brezhnev.ivan@yahoo.com>
  */
-class StarRating {
+class StarRating
+{
     /**
      * @var string Rating main table
      */
     public $ratingTable;
-
     /**
      * @var string Rating votes table
      */
     public $votesTable;
-
     /**
      * @var DocumentParser A reference to the DocumentParser object
      */
     private $modx;
-
     /**
      * @var DBAPI
      */
     private $db;
-
     /**
      * @var array An array of templates chunks
      */
     private $chunks = array();
-
     /**
      * @var array
      */
     private $config = array();
-
     /**
      * @var array
      */
     private $lang;
-
     /**
      * @var self
      */
     private static $scriptsLoaded = false;
 
     /**
-     * Constructor
+     * StarRating constructor.
      *
      * @param DocumentParser $modx
-     * @param array          $config
+     * @param array $config
      */
-    public function __construct(DocumentParser & $modx, array $config = array()) {
-        $this->modx =& $modx;
-        $this->db =& $modx->db;
+    public function __construct(DocumentParser $modx, array $config = array())
+    {
+        $this->modx = $modx;
+        $this->db = $modx->db;
 
         $this->ratingTable = $this->modx->getFullTableName('star_rating');
         $this->votesTable = $this->modx->getFullTableName('star_rating_votes');
@@ -64,7 +59,11 @@ class StarRating {
         $this->setProperties($this->config);
     }
 
-    public function setConfigFromSnippet(array & $config) {
+    /**
+     * @param array $config
+     */
+    public function setConfigFromSnippet(array $config)
+    {
         if (!empty($config['class'])) {
             $config['class'] = ' ' . trim($config['class']);
         }
@@ -85,7 +84,8 @@ class StarRating {
      *
      * @param array $config
      */
-    private function setProperties(array & $config) {
+    private function setProperties(array $config)
+    {
         $this->setLang($config['lang']);
 
         if (empty($config['id'])) {
@@ -105,9 +105,10 @@ class StarRating {
     }
 
     /**
-     * @return StarRatingResponse
+     * @return string|StarRatingResponse
      */
-    public function process() {
+    public function process()
+    {
         if ($this->ajax()) {
             return $this->processAjax();
         }
@@ -115,26 +116,30 @@ class StarRating {
         $this->loadScripts();
         $this->loadStyles();
 
-        $output = $this->renderRating($this->config['id']);
-
-        return $output;
+        return $this->renderRating($this->config['id']);
     }
 
-    private function processAjax() {
+    /**
+     * @return string|null
+     */
+    private function processAjax()
+    {
         $id = isset($_GET[$this->getConfig('idRequestKey')])
             ? $_GET[$this->getConfig('idRequestKey')]
             : null;
 
-        if ($this->config['id'] != $id) return null;
+        if ($this->config['id'] != $id) {
+            return null;
+        }
 
-        $response = $this->vote(
-            $id,
-            isset($_GET['vote']) ? $_GET['vote'] : null
-        );
+        $response = $this->vote($id, isset($_GET['vote']) ? $_GET['vote'] : null);
 
         return $response->display();
     }
 
+    /**
+     * @return StarRating
+     */
     public function isScriptsLoaded()
     {
         return self::$scriptsLoaded;
@@ -146,7 +151,8 @@ class StarRating {
      *
      * @return array|bool|StarRatingResponse
      */
-    public function vote($id, $vote) {
+    public function vote($id, $vote)
+    {
         $id = (int) $id;
         $vote = (int) $vote;
 
@@ -157,7 +163,7 @@ class StarRating {
         $checkVote = $this->checkVote($id);
 
         if ($checkVote !== true) {
-            return $this->response()->error('Вы уже голосовали');
+            return $this->response()->error($this->trans('already_voted'));
         }
 
         return $this->setVote($vote, $id);
@@ -170,21 +176,30 @@ class StarRating {
      *
      * @return bool|string
      */
-    private function checkVote($id = 0) {
-        if (!$id = (int) $id) return false;
+    private function checkVote($id = 0)
+    {
+        if (!$id = (int) $id) {
+            return false;
+        }
 
-        if ($this->getConfig('readOnly')) return false;
+        if ($this->getConfig('readOnly')) {
+            return false;
+        }
 
-        if (!$ip = $this->getClientIp()) return false;
+        if (!$ip = $this->getClientIp()) {
+            return false;
+        }
 
         $checkRes = $this->isResourceExists($id);
 
-        if (!$checkRes) return false;
+        if (!$checkRes) {
+            return false;
+        }
 
         $time = time() - $this->config['interval'];
         $query = $this->db->select('*', $this->votesTable, "ip = '{$ip}' AND rid = {$id} AND time > {$time}");
 
-        return $this->db->getRecordCount($query) > 0 ? false : true;
+        return $this->db->getRecordCount($query) <= 0;
     }
 
     /**
@@ -193,9 +208,10 @@ class StarRating {
      * @param int $vote Vote
      * @param int $id Resource ID
      *
-     * @return array|bool
+     * @return array|bool|StarRatingResponse
      */
-    private function setVote($vote, $id) {
+    private function setVote($vote, $id)
+    {
         $vote = (int) $vote;
         $id = (int) $id;
 
@@ -237,12 +253,13 @@ class StarRating {
      * @param int $id Resource ID
      * @param int $vote
      */
-    private function insertVote($id, $vote) {
+    private function insertVote($id, $vote)
+    {
         $this->db->insert(array(
             'rid' => $id,
             'ip' => $this->getClientIp(),
             'vote' => $vote,
-            'time' => time()
+            'time' => time(),
         ), $this->votesTable);
     }
 
@@ -253,7 +270,8 @@ class StarRating {
      *
      * @return array|null
      */
-    public function getRating($id) {
+    public function getRating($id)
+    {
         $query = $this->db->select('*', $this->ratingTable, "rid = {$id}");
 
         $data = $this->db->getRow($query);
@@ -266,9 +284,10 @@ class StarRating {
      *
      * @param int $id Resource ID
      *
-     * @return array
+     * @return string
      */
-    private function renderRating($id) {
+    private function renderRating($id)
+    {
         $data = $this->getRating($id);
 
         $params = array(
@@ -285,9 +304,7 @@ class StarRating {
             'readOnly' => (int) $this->config['readOnly'] || (int) !$this->checkVote($id),
         );
 
-        $output = $this->parseChunk($this->config['tpl'], $params);
-
-        return $output;
+        return $this->parseChunk($this->config['tpl'], $params);
     }
 
     /**
@@ -295,13 +312,14 @@ class StarRating {
      *
      * @return mixed
      */
-    private function getClientIp() {
+    private function getClientIp()
+    {
+        $ip = '';
+
         if (isset($_SERVER['HTTP_CLIENT_IP'])) {
             $ip = $_SERVER['HTTP_CLIENT_IP'];
         } elseif (isset($_SERVER['REMOTE_ADDR'])) {
             $ip = $_SERVER['REMOTE_ADDR'];
-        } else {
-            $ip = '';
         }
 
         return filter_var($ip, FILTER_VALIDATE_IP);
@@ -314,7 +332,8 @@ class StarRating {
      *
      * @return bool|string
      */
-    private function isResourceExists($id) {
+    private function isResourceExists($id)
+    {
         $tbl = $this->modx->getFullTableName('site_content');
         $id = (int) $id;
 
@@ -329,7 +348,8 @@ class StarRating {
      *
      * @param int $interval Seconds
      */
-    public function setInterval($interval) {
+    public function setInterval($interval)
+    {
         $this->config['interval'] = (int) $interval;
     }
 
@@ -338,7 +358,8 @@ class StarRating {
      *
      * @param string $tpl
      */
-    public function setTemplate($tpl = '') {
+    public function setTemplate($tpl = '')
+    {
         if (!empty($tpl)) {
             $this->config['tpl'] = (string) $tpl;
         }
@@ -349,7 +370,8 @@ class StarRating {
      *
      * @param string $lang
      */
-    public function setLang($lang) {
+    public function setLang($lang)
+    {
         if ($lang) {
             $this->config['lang'] = (string) $lang;
         }
@@ -372,7 +394,8 @@ class StarRating {
      *
      * @return string Empty
      */
-    private function getChunk($tpl = '', $postfix = '.chunk.tpl') {
+    private function getChunk($tpl = '', $postfix = '.chunk.tpl')
+    {
         if (empty($tpl)) {
             return '';
         }
@@ -381,7 +404,7 @@ class StarRating {
             return $this->chunks[$tpl];
         }
 
-        if (substr($tpl, 0, 7) == "@CHUNK:") {
+        if (0 === strpos($tpl, '@CHUNK:')) {
             $tpl = substr($tpl, 7);
 
             if ($chunk = $this->modx->getChunk($tpl)) {
@@ -408,14 +431,16 @@ class StarRating {
      * Parse Template
      *
      * @param string $tpl
-     * @param array  $params
+     * @param array $params
      *
-     * @return mixed
+     * @return string
      */
-    private function parseTpl($tpl = '', $params = array()) {
+    private function parseTpl($tpl = '', array $params = array())
+    {
         foreach ($params as $n => $v) {
-            $tpl = str_replace('[+' . $n . '+]', $v, $tpl);
+            $tpl = str_replace("[+{$n}+]", $v, $tpl);
         }
+
         $tpl = preg_replace('~\[\+(.*?)\+\]~', '', $tpl);
 
         return $tpl;
@@ -429,7 +454,8 @@ class StarRating {
      *
      * @return string
      */
-    private function parseChunk($tpl, $params = array()) {
+    private function parseChunk($tpl, array $params = array())
+    {
         $tpl = $this->getChunk($tpl);
 
         return $this->parseTpl($tpl, $params);
@@ -437,19 +463,18 @@ class StarRating {
 
     /**
      * @param string $message
-     * @param bool   $error
-     * @param array  $data
+     * @param bool $error
+     * @param array $data
      *
      * @return StarRatingResponse
      */
-    public function response($message = '', $error = false, $data = array()) {
+    public function response($message = '', $error = false, array $data = array())
+    {
         if (!class_exists('StarRatingResponse')) {
             require_once 'starratingresponse.class.php';
         }
 
-        $response = new StarRatingResponse($message, $error, $data);
-
-        return $response;
+        return new StarRatingResponse($message, $error, $data);
     }
 
     /**
@@ -457,12 +482,13 @@ class StarRating {
      *
      * @return bool
      */
-    public function isInstalled() {
+    public function isInstalled()
+    {
         $prefix = $this->db->config['table_prefix'];
 
         $q = $this->db->query("SHOW TABLES LIKE '{$prefix}star_%'");
 
-        return $this->db->getRecordCount($q) == 2;
+        return (int) $this->db->getRecordCount($q) === 2;
     }
 
     /**
@@ -470,9 +496,11 @@ class StarRating {
      *
      * @return bool|string
      */
-    public function install() {
-        if ($this->isInstalled())
+    public function install()
+    {
+        if ($this->isInstalled()) {
             return false;
+        }
 
         $tbl_prefix = $this->db->config['table_prefix'];
 
@@ -519,14 +547,16 @@ class StarRating {
     /**
      * @return DocumentParser
      */
-    public function getModx() {
+    public function getModx()
+    {
         return $this->modx;
     }
 
     /**
      * @return DBAPI
      */
-    public function getDB() {
+    public function getDB()
+    {
         return $this->db;
     }
 
@@ -538,17 +568,19 @@ class StarRating {
      *
      * @return string
      */
-    public function trans($key, $default = '') {
+    public function trans($key, $default = '')
+    {
         return isset($this->lang[$key]) ? $this->lang[$key] : $default;
     }
 
     /**
-     * @param null  $tpl
+     * @param null $tpl
      * @param array $data
      *
      * @return string|StarRatingView
      */
-    public function view($tpl = null, $data = array()) {
+    public function view($tpl = null, array $data = array())
+    {
         static $view;
         if (!$view) {
             require_once 'starratingview.class.php';
@@ -557,7 +589,7 @@ class StarRating {
             $view->share('modx', $this->modx);
         }
 
-        return is_null($tpl) ? $view : $view->fetch($tpl, $data);
+        return null === $tpl ? $view : $view->fetch($tpl, $data);
     }
 
     /**
@@ -565,7 +597,8 @@ class StarRating {
      *
      * @return string
      */
-    public function e($string) {
+    public function e($string)
+    {
         return htmlentities($string, ENT_QUOTES, 'UTF-8', false);
     }
 
@@ -574,8 +607,10 @@ class StarRating {
      *
      * @return bool
      */
-    public function ajax() {
-        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' ? true : false;
+    public function ajax()
+    {
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+            && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
     }
 
     /**
@@ -585,21 +620,27 @@ class StarRating {
      *
      * @return bool
      */
-    public function method($method = 'get') {
+    public function method($method = 'get')
+    {
         return strtolower($_SERVER['REQUEST_METHOD']) === strtolower($method);
     }
 
     /**
      * @param string $key
-     * @param null   $default
+     * @param mixed $default
      *
      * @return null
      */
-    public function getConfig($key, $default = null) {
+    public function getConfig($key, $default = null)
+    {
         return isset($this->config[$key]) ? $this->config[$key] : $default;
     }
 
-    private function loadScripts() {
+    /**
+     * Load content scripts
+     */
+    private function loadScripts()
+    {
         if (!$this->config['noJs'] && !$this->isScriptsLoaded()) {
             $this->modx->regClientHTMLBlock('<script>window.jQuery || document.write(\'<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">\x3C/script>\');</script>');
             $this->modx->regClientHTMLBlock('<script src="' . $this->config['assetsUrl'] . 'js/scripts.min.js"></script>');
@@ -608,7 +649,11 @@ class StarRating {
         }
     }
 
-    private function loadStyles() {
+    /**
+     * Load content styles
+     */
+    private function loadStyles()
+    {
         if (!$this->config['noCss']) {
             $this->modx->regClientStartupHTMLBlock('<link rel="stylesheet" href="' . $this->config['assetsUrl'] . 'css/styles.min.css"/>');
         }

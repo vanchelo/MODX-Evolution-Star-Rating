@@ -2,7 +2,7 @@
 /** @var DocumentParser $modx */
 define('MODX_API_MODE', true);
 
-include_once dirname(dirname(dirname(dirname(__FILE__)))) . '/index.php';
+include_once dirname(dirname(dirname(__DIR__))) . '/index.php';
 require_once 'starrating.class.php';
 require_once 'starratingresponse.class.php';
 
@@ -22,8 +22,7 @@ if (!$rating->method('get') || !$rating->ajax()) {
 
 $response = $rating->vote(
     isset($_GET['id']) ? $_GET['id'] : null,
-    isset($_GET['vote']) ? $_GET['vote'] : null,
-    isset($_GET['tpl']) ? (string) $_GET['tpl'] : ''
+    isset($_GET['vote']) ? $_GET['vote'] : null
 );
 
 $response->display();

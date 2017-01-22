@@ -1,4 +1,9 @@
-<?php defined('IN_MANAGER_MODE') or die('Error');
+<?php
+
+if (!defined('IN_MANAGER_MODE')) {
+    die('Error');
+}
+
 /** @var DocumentParser $modx */
 
 require __DIR__ . '/starrating.class.php';

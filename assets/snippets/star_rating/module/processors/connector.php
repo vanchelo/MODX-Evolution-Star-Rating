@@ -25,11 +25,11 @@ $dbConfig =& $rating->getDB()->config;
  *
  * @link https://github.com/j4mie/idiorm
  */
-require_once dirname(dirname(__FILE__)) . '/libs/idiorm.php';
+require_once dirname(__DIR__) . '/libs/idiorm.php';
 /**
  * Подключаем класс для работы с процессорами
  */
-require_once dirname(dirname(__FILE__)) . '/libs/processor.class.php';
+require_once dirname(__DIR__) . '/libs/processor.class.php';
 
 /**
  * Устанавливаем параметры подключения к базе данных
