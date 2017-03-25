@@ -39,7 +39,7 @@
     }
 
     $scope.getSortDir = function (column) {
-      if ($scope.order == column) {
+      if ($scope.order === column) {
         return $scope.revers ? 'desc' : 'asc';
       }
     };
@@ -49,7 +49,7 @@
         limit: $scope.limit = parseInt($scope.limit, 10) || 10
       };
 
-      if ($scope.order == order) {
+      if ($scope.order === order) {
         $scope.revers = !$scope.revers;
       } else {
         $scope.revers = false;
@@ -84,7 +84,7 @@
 
     $scope.get = function (resource) {
       Rating.get(resource.id).then(function (data) {
-        if (data.success == true) {
+        if (data.success === true) {
           $scope.resource = data.data;
           $('#edit').modal('show');
         }
@@ -97,7 +97,7 @@
       }
 
       Rating.reset(resource.id).then(function (data) {
-        if (data.success == true) {
+        if (data.success === true) {
           $scope.change();
         }
       });
