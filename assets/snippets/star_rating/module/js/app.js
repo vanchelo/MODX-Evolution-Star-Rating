@@ -8,11 +8,9 @@
         $compileProvider.debugInfoEnabled(false);
       }
     ])
-    .constant('RatingConfig', function () {
-      return {
-        connectorUrl: '/assets/snippets/star_rating/module/processors/connector.php',
-        limit: 100
-      }
+    .constant('RatingConfig', {
+      connectorUrl: '/assets/snippets/star_rating/module/processors/connector.php',
+      limit: 100
     })
     .factory('Rating', Rating)
     .controller('RatingController', RatingController);
