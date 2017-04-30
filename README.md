@@ -27,7 +27,7 @@ include MODX_BASE_PATH . 'assets/snippets/star_rating/starrating.module.php';
 
 Пример вызова сниппета:
 ```
-[!star_rating? $id=`[*id*]` &tpl=`@CHUNK:star_rating`!]
+[!star_rating? &id=`[*id*]` &tpl=`@CHUNK:star_rating`!]
 ```
 
 #### Параметры сниппета
