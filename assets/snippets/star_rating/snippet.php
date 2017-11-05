@@ -2,9 +2,9 @@
 /** @var DocumentParser $modx */
 
 /**
- * Сниппет - Звездный рейтинг
+ * Snippet - Star Rating
  *
- * Пример вызова на странице с 10-ю звздами:
+ * Render star rating with 10 stars:
  * [!star_rating? $id=`[*id*]` &tpl=`@CHUNK:template` &stars=`10`!]
  */
 
@@ -16,6 +16,7 @@ $config = array(
     'lang' => isset($lang) ? (string) $lang : 'ru',
     'interval' => isset($interval) ? (int) $interval : 24 * 60 * 60,
     'noJs' => isset($noJs) ? (bool) $noJs : false,
+    'noJquery' => isset($noJquery) ? (bool) $noJquery : false,
     'noCss' => isset($noCss) ? (bool) $noCss : false,
     'class' => isset($class) ? (string) $class : '',
     'stars' => isset($stars) ? (int) $stars : 5,

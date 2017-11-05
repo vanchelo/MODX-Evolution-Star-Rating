@@ -2,10 +2,22 @@
 
 class StarRatingView
 {
+    /**
+     * @var string
+     */
     protected $viewsPath;
+    /**
+     * @var array
+     */
     protected $data = array();
 
-    public function __construct($path = null) {
+    /**
+     * StarRatingView constructor.
+     *
+     * @param string|null $path
+     */
+    public function __construct($path = null)
+    {
         if (!$path) {
             throw new InvalidArgumentException('Views path is not defined');
         }
@@ -13,19 +25,25 @@ class StarRatingView
         $this->viewsPath = rtrim($path, '/') . '/';
     }
 
-    public function share($key, $value) {
+    /**
+     * @param string $key
+     * @param string $value
+     */
+    public function share($key, $value)
+    {
         $this->data[$key] = $value;
     }
 
     /**
-     * Получить отренедеренный шаблон с параметрами $data
+     * Fetch and render template with $data
      *
-     * @param  string $template
-     * @param  array  $data
+     * @param string $template
+     * @param array $data
      *
      * @return string
      */
-    public function fetch($template, $data = array()) {
+    public function fetch($template, $data = array())
+    {
         try {
             ob_start();
             if ($data) {
@@ -45,30 +63,44 @@ class StarRatingView
     }
 
     /**
-     * Вывести отренедеренный шаблон с параметрами
+     * Render and output template
      *
-     * @param  string $template
-     * @param  array  $data
+     * @param string $template
+     * @param array $data
      *
      * @return void
      */
-    public function render($template, $data = array()) {
+    public function render($template, $data = array())
+    {
         echo $this->fetch($template, $data);
     }
 
-    protected function preparePath($template = '') {
+    /**
+     * @param string $template
+     *
+     * @return mixed|string
+     */
+    protected function preparePath($template = '')
+    {
         $template = preg_replace('/[^a-z0-9._]+/is', '', (string) $template);
-
         $template = $this->viewsPath . str_replace('.', '/', $template) . '.php';
 
         return $template;
     }
 
-    public function setViewsPath($path = '') {
+    /**
+     * @param string $path
+     */
+    public function setViewsPath($path = '')
+    {
         $this->viewsPath = $path;
     }
 
-    public function getViewsPath() {
+    /**
+     * @return string
+     */
+    public function getViewsPath()
+    {
         return $this->viewsPath;
     }
 }

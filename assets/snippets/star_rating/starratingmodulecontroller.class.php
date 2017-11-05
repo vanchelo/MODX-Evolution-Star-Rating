@@ -1,6 +1,7 @@
 <?php
 
-class StarRatingModuleController {
+class StarRatingModuleController
+{
     /**
      * @var StarRating
      */
@@ -10,12 +11,14 @@ class StarRatingModuleController {
      */
     protected $response;
 
-    public function __construct(StarRating $app) {
+    public function __construct(StarRating $app)
+    {
         $this->app = $app;
         $app->view()->share('id', isset($_GET['id']) ? (int) $_GET['id'] : 0);
     }
 
-    public function indexAction() {
+    public function indexAction()
+    {
         if (!$this->app->isInstalled()) {
             return $this->app->view('module.install');
         }
@@ -23,24 +26,26 @@ class StarRatingModuleController {
         return $this->app->view('module.index');
     }
 
-    public function installAction() {
+    public function installAction()
+    {
         if ($this->app->isInstalled()) {
-            return 'Модуль уже установлен';
+            return 'Module already installed.';
         }
 
         $install = $this->app->install();
 
         return $this->app->view('module.install', array(
-            'message' => $install
+            'message' => $install,
         ));
     }
 
     /**
-     * @param $action
+     * @param string $action
      *
-     * @return null
+     * @return string|null
      */
-    public function run($action) {
+    public function run($action)
+    {
         $action .= 'Action';
 
         if (!method_exists($this, $action)) {

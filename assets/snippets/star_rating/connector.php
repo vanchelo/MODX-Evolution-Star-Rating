@@ -20,9 +20,12 @@ if (!$rating->method('get') || !$rating->ajax()) {
     return $response->error($rating->trans('method_not_allowed'))->display();
 }
 
+$idRequestKey = 'id';
+$voteRequestKey = 'vote';
+
 $response = $rating->vote(
-    isset($_GET['id']) ? $_GET['id'] : null,
-    isset($_GET['vote']) ? $_GET['vote'] : null
+    isset($_GET[$idRequestKey]) ? $_GET[$idRequestKey] : null,
+    isset($_GET[$voteRequestKey]) ? $_GET[$voteRequestKey] : null
 );
 
 $response->display();

@@ -63,7 +63,7 @@
         $scope.params.order = order;
         $scope.order = order;
       } else if ($scope.order !== '') {
-        $scope.params.order = $scope.order
+        $scope.params.order = $scope.order;
       }
 
       if (parseInt($scope.id, 10)) {
@@ -139,7 +139,7 @@
         return {
           resources: data.data,
           total: data.total
-        }
+        };
       });
     }
 

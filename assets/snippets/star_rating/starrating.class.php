@@ -73,6 +73,7 @@ class StarRating
             'tpl' => 'template', // Name of template file chunk
             'interval' => 24 * 60 * 60, // The interval between votings in seconds
             'noJs' => false,
+            'noJquery' => false,
             'noCss' => false,
             'class' => '',
             'stars' => 5,
@@ -318,7 +319,7 @@ class StarRating
 
         if (isset($_SERVER['HTTP_CLIENT_IP'])) {
             $ip = $_SERVER['HTTP_CLIENT_IP'];
-        } elseif (isset($_SERVER['REMOTE_ADDR'])) {
+        } else if (isset($_SERVER['REMOTE_ADDR'])) {
             $ip = $_SERVER['REMOTE_ADDR'];
         }
 
@@ -642,7 +643,10 @@ class StarRating
     private function loadScripts()
     {
         if (!$this->config['noJs'] && !$this->isScriptsLoaded()) {
-            $this->modx->regClientHTMLBlock('<script>window.jQuery || document.write(\'<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">\x3C/script>\');</script>');
+            if (!$this->config['noJquery']) {
+                $this->modx->regClientHTMLBlock('<script>window.jQuery || document.write(\'<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js">\x3C/script>\');</script>');
+            }
+
             $this->modx->regClientHTMLBlock('<script src="' . $this->config['assetsUrl'] . 'js/scripts.min.js"></script>');
 
             self::$scriptsLoaded = true;

@@ -115,7 +115,7 @@ class StarRatingResponse
     /**
      * Convert the object to its JSON representation.
      *
-     * @param  int $options
+     * @param int $options
      *
      * @return string
      */
@@ -137,8 +137,8 @@ class StarRatingResponse
     }
 
     /**
-     * @param $key
-     * @param null $defaul
+     * @param string $key
+     * @param null|mixed $defaul
      *
      * @return mixed|null
      */
@@ -150,7 +150,7 @@ class StarRatingResponse
     /**
      * @param bool $send
      *
-     * @return null
+     * @return null|string
      */
     public function display($send = true)
     {

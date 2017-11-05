@@ -1,13 +1,29 @@
 jQuery(document).ready(function ($) {
   $('.star-rating').raty({
-    path: function () { return this.dataset.path || '/assets/snippets/star_rating/assets/img/' },
-    starOn: function () { return this.dataset.on || 'star-on.png' },
-    starOff: function () { return this.dataset.off || 'star-off.png' },
-    starHalf: function () { return this.dataset.half || 'star-half.png' },
-    number: function () { return this.dataset.stars || 5 },
-    score: function () { return this.dataset.rating || 0 },
-    readOnly: function () { return this.dataset.disabled == 1 },
-    starType: function () { return this.dataset.type || 'img' },
+    path: function () {
+      return this.dataset.path || '/assets/snippets/star_rating/assets/img/';
+    },
+    starOn: function () {
+      return this.dataset.on || 'star-on.png';
+    },
+    starOff: function () {
+      return this.dataset.off || 'star-off.png';
+    },
+    starHalf: function () {
+      return this.dataset.half || 'star-half.png';
+    },
+    number: function () {
+      return this.dataset.stars || 5;
+    },
+    score: function () {
+      return this.dataset.rating || 0;
+    },
+    readOnly: function () {
+      return this.dataset.disabled == 1;
+    },
+    starType: function () {
+      return this.dataset.type || 'img';
+    },
     click: function (vote) {
       var rating = $(this);
       var container = rating.closest('.star-rating-container');
@@ -35,8 +51,8 @@ jQuery(document).ready(function ($) {
             });
 
             setTimeout(function () {
-              container.find('.msg').fadeOut(1000)
-            }, 2000)
+              container.find('.msg').fadeOut(1000);
+            }, 2000);
           } else {
             alert('Unknown error. Try again later');
           }
@@ -44,7 +60,7 @@ jQuery(document).ready(function ($) {
         beforeSend: function () {
           rating.append('<div class="mask" />');
         }
-      })
+      });
     }
   });
 });
