@@ -1,4 +1,7 @@
 # Звездный рейтинг для MODX Evolution
+
+![Star Rating](./star-rating.png)
+
 ## Star Rating for MODX Evolution
 
 **Сборка с использованием плагина [jquery.raty](http://www.wbotelhos.com/raty/)**
