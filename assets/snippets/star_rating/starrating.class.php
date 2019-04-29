@@ -310,11 +310,15 @@ class StarRating
         );
         
         /*
-        * nulled rating if blank set
+        * "nulled" rating if blank set
         */
-        if (!empty($this->config['blank'])) {
-			$params['rating'] = 0;
+	if (isset($this->config['blank'])) {
+		$init = $this->config['blank'];
+		if ($init > $this->config['stars']) {
+			$init = $this->config['stars'];
 		}
+		$params['rating'] = $init;
+	}
 
         return $this->parseChunk($this->config['tpl'], $params);
     }
