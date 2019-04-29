@@ -110,7 +110,11 @@ class StarRating
     public function process()
     {
         if ($this->ajax()) {
-            return $this->processAjax();
+            /* 
+            * separate requests from different blocks Star Rating on page
+            */
+            if (!isset($_GET['uid']) || $_GET['uid'] == $this->config['uid'])
+                return $this->processAjax();
         }
 
         $this->loadScripts();
@@ -292,6 +296,7 @@ class StarRating
 
         $params = array(
             'id' => $id,
+            'uid' => $this->config['uid'],
             'votes' => isset($data['votes']) ? $data['votes'] : 0,
             'rating' => isset($data['rating']) ? $data['rating'] : 0,
             'class' => $this->config['class'],
@@ -303,6 +308,13 @@ class StarRating
             'starType' => $this->config['starType'],
             'readOnly' => (int) $this->config['readOnly'] || (int) !$this->checkVote($id),
         );
+        
+        /*
+        * nulled rating if blank set
+        */
+        if (!empty($this->config['blank'])) {
+			$params['rating'] = 0;
+		}
 
         return $this->parseChunk($this->config['tpl'], $params);
     }
