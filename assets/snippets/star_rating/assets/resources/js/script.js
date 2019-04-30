@@ -12,11 +12,12 @@ jQuery(document).ready(function ($) {
       var rating = $(this);
       var container = rating.closest('.star-rating-container');
       var id = this.dataset.id;
+      var uid = this.dataset.uid;
 
       $.ajax({
         url: window.location.href,
         type: 'get',
-        data: { rid: id, vote: vote },
+        data: { rid: id, vote: vote, uid: uid },
         success: function (data) {
           if (data) {
             container.find('.msg').remove();

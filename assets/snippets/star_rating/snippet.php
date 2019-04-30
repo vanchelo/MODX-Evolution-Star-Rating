@@ -25,6 +25,8 @@ $config = array(
     'imagesPath' => isset($imagesPath) ? (string) $imagesPath : null,
     'readOnly' => isset($readOnly) ? (bool) $readOnly : false,
     'starType' => isset($starType) ? (string) $starType : null,
+    'blank' => isset($blank) ? (int) $blank : 0,
+    'uid' => isset($uid) ? (string) $uid : null
 );
 
 $starRating = new StarRating($modx, $config);
