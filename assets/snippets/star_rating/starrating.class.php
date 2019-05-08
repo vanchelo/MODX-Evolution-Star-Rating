@@ -312,7 +312,7 @@ class StarRating
         /*
         * "nulled" rating if blank set
         */
-	if (isset($this->config['blank'])) {
+	if (isset($this->config['blank']) && !$params['readOnly']) {
 		$init = $this->config['blank'];
 		if ($init > $this->config['stars']) {
 			$init = $this->config['stars'];
