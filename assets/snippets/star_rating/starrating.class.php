@@ -200,6 +200,15 @@ class StarRating
             return false;
         }
 
+	if ($this->getConfig('voteMax')) {
+		$query = $this->db->select('*', $this->votesTable, "ip = '{$ip}' AND rid = {$id}");
+		$votes = $this->db->getRecordCount($query);
+
+		if (!empty($votes) && $votes >= $this->getConfig('voteMax')) {
+			return false;
+		}
+	}
+	    
         $time = time() - $this->config['interval'];
         $query = $this->db->select('*', $this->votesTable, "ip = '{$ip}' AND rid = {$id} AND time > {$time}");
 
