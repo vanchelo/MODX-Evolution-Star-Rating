@@ -1,22 +1,26 @@
 {
-  "name": "StarRating",
+  "name": "modx-star-rating",
   "version": "1.0.6",
-  "description": "",
-  "main": "gulpfile.js",
+  "description": "Star Rating for MODX Evolution",
+  "private": true,
   "keywords": [
     "Rating",
     "StarRating",
     "modx",
     "evolution"
   ],
-  "author": "Brezhnev Ivan",
+  "author": "Brezhnev Ivan <brezhnev.ivan@yahoo.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "gulp watch",
+    "build": "gulp"
+  },
   "devDependencies": {
-    "gulp": "^3.8.10",
-    "gulp-sass": "^1.2.4",
-    "gulp-minify-css": "^0.3.10",
-    "gulp-concat": "^2.4.3",
-    "gulp-uglify": "^1.0.2",
-    "gulp-rename": "^1.2.0"
+    "gulp": "^4.0.2",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-rename": "^2.0.0",
+    "gulp-sass": "^4.1.0",
+    "gulp-uglify": "^3.0.2"
   }
 }

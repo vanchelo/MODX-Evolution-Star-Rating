@@ -1,44 +1,33 @@
-var gulp = require('gulp');
-var minify = require('gulp-minify-css');
-var concat = require('gulp-concat');
-var uglify = require('gulp-uglify');
-var rename = require('gulp-rename');
+const { parallel, src, dest, series, watch } = require('gulp');
+const cssMinify = require('gulp-clean-css');
+const concat = require('gulp-concat');
+const uglify = require('gulp-uglify');
+const rename = require('gulp-rename');
 
-var paths = {
-  dev: {
-    css: 'assets/resources/css/',
-    js: 'assets/resources/js/'
-  },
-  prod: {
-    css: 'assets/css/',
-    js: 'assets/js/'
-  }
-};
+function css() {
+  return src('assets/resources/css/*.css')
+    .pipe(concat('styles.css'))
+    .pipe(cssMinify({ specialComments: false }))
+    .pipe(rename({ extname: '.min.css' }))
+    .pipe(dest('assets/css/'));
+}
 
-// CSS
-gulp.task('css', function () {
-  return gulp.src([
-    paths.dev.css + '*.css'
-  ])
-    .pipe(concat('styles.min.css'))
-    .pipe(gulp.dest(paths.prod.css))
-    .pipe(minify({ keepSpecialComments: 0 }))
-    .pipe(gulp.dest(paths.prod.css));
-});
-
-// JS
-gulp.task('js', function () {
-  return gulp.src([
-    paths.dev.js + '*.js'
-  ])
-    .pipe(concat('scripts.min.js'))
+function js() {
+  return src('assets/resources/js/*.js')
+    .pipe(concat('scripts.js'))
     .pipe(uglify())
-    .pipe(gulp.dest(paths.prod.js));
-});
+    .pipe(rename({ extname: '.min.js' }))
+    .pipe(dest('assets/js/'));
+}
 
-gulp.task('watch', function () {
-  gulp.watch(paths.dev.css + '/*.css', ['css']);
-  gulp.watch(paths.dev.js + '/*.js', ['js']);
-});
+function watchChanges() {
+  watch('assets/resources/css/*.css', css);
+  watch('assets/resources/js/*.js', js);
+}
 
-gulp.task('default', ['css', 'js', 'watch']);
+module.exports = {
+  js,
+  css,
+  watch: series(parallel(js, css), watchChanges),
+  default: parallel(js, css),
+};
