@@ -26,7 +26,8 @@ $config = array(
     'readOnly' => isset($readOnly) ? (bool) $readOnly : false,
     'starType' => isset($starType) ? (string) $starType : null,
     'blank' => isset($blank) ? (int) $blank : null,
-    'uid' => isset($uid) ? (string) $uid : null
+    'uid' => isset($uid) ? (string) $uid : null,
+    'precision' => isset($precision) ? (int) $precision : 2
 );
 
 $starRating = new StarRating($modx, $config);
