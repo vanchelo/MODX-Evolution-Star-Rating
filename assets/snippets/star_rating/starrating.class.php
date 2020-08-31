@@ -228,7 +228,7 @@ class StarRating
         if ($data) {
             $total = $data['total'] + $vote;
             $votes = $data['votes'] + 1;
-            $rating = $total ? round($total / $votes, 2) : $vote;
+            $rating = $total ? round($total / $votes, $this->config['precision']) : $vote;
 
             $this->db->update(compact('total', 'votes', 'rating'), $this->ratingTable, 'rid=' . $id);
         } else {
